@@ -1,0 +1,176 @@
+buildscript {
+    ext {
+        flywayVersion = '9.16.1'
+        lombokVersion = '1.18.28'
+        commonsIoVersion = "2.11.0"
+        tikaVersion = '2.8.0'
+        fasterXmlVersion = "2.15.2"
+        jAudioTaggerVersion = '3.0.1'
+        mysqlConnectorVersion = '8.0.32'
+        ehcacheVersion = '3.10.8'
+        springDependencyVersion = '1.1.0'
+        springCloudVersion = '2022.0.3'
+        springBootVersion = '3.1.1'
+        springDocVersion = '2.1.0'
+        jibPluginVersion = '3.3.1'
+        wsdl4jVersion = '1.6.3'
+        jUpnpVersion = '2.7.1'
+
+        jUnit5PlatformVersion = '1.8.2'
+        jUnit5EngineVersion = '5.8.2'
+        mockitoVersion = '4.0.0'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version "${springBootVersion}"
+    id 'com.google.cloud.tools.jib' version "${jibPluginVersion}"
+    id "io.spring.dependency-management" version "${springDependencyVersion}"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+apply plugin: 'java'
+apply plugin: 'java-library'
+apply plugin: 'io.spring.dependency-management'
+
+configurations {
+    jaxb
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+//        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+dependencies {
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    jaxb "org.glassfish.jaxb:jaxb-xjc:4.0.2"
+    jaxb "org.glassfish.jaxb:jaxb-runtime:4.0.2"
+
+    implementation "wsdl4j:wsdl4j:${wsdl4jVersion}"
+
+    implementation"javax.xml.bind:jaxb-api:2.4.0-b180830.0359"
+    implementation "javax.activation:javax.activation-api:1.2.0"
+
+    implementation "org.jupnp:org.jupnp:${jUpnpVersion}"
+    implementation "org.jupnp:org.jupnp.support:${jUpnpVersion}"
+
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.apache.tika:tika-core:${tikaVersion}"
+
+    implementation "net.jthink:jaudiotagger:${jAudioTaggerVersion}"
+    implementation "org.ehcache:ehcache:${ehcacheVersion}"
+
+    implementation "org.flywaydb:flyway-core:${flywayVersion}"
+    implementation "org.flywaydb:flyway-mysql:${flywayVersion}"
+
+    runtimeOnly "mysql:mysql-connector-java:${mysqlConnectorVersion}"
+
+    implementation "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:${fasterXmlVersion}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${fasterXmlVersion}"
+
+    implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-data-jdbc:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-cache:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-logging:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-web-services:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-freemarker:${springBootVersion}"
+
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
+
+//    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client"
+
+    implementation('org.yaml:snakeyaml') {
+        version {
+            strictly '2.0'
+        }
+    }
+
+    testImplementation "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testImplementation("org.junit.platform:junit-platform-commons:${jUnit5PlatformVersion}")
+    testRuntimeOnly("org.junit.platform:junit-platform-engine:${jUnit5PlatformVersion}")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:${jUnit5PlatformVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${jUnit5EngineVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${jUnit5EngineVersion}")
+    testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+}
+
+jar {
+    enabled = true
+}
+
+bootJar {
+    archiveBaseName = 'playqd-media-server'
+    mainClass = 'io.playqd.mediaserver.Application'
+}
+
+jib {
+    allowInsecureRegistries = 'true'
+    from {
+        image = 'openjdk:17-slim'
+    }
+    to {
+        image = 'playqd-media-server'
+        tags = ['1.0.0']
+    }
+    container {
+        mainClass = 'io.playqd.mediaserver.Application'
+        ports = ["8080"]
+        workingDirectory = '/playqd'
+        volumes = ["/playqd/Media/Music"]
+        creationTime = "USE_CURRENT_TIMESTAMP"
+        environment = [SPRING_PROFILES_ACTIVE: "docker"]
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+//            srcDir 'build/generated-sources/jaxb'
+        }
+    }
+}
+
+tasks.register('genJaxb') {
+    ext.sourcesDir = "${projectDir}/src/main/java"
+//    ext.schema = "src/main/resources/schemas/browse.xsd"
+//    ext.schema = "src/main/resources/schemas/my/**/*.xsd"
+//    ext.schemaDir = "src/main/resources/schemas/my"
+//    ext.schema = "src/main/resources/schemas/my-schema.xsd"
+//    ext.schema = "src/main/resources/schemas/upnp/schemas/didl-lite.xsd"
+
+    outputs.dir sourcesDir
+
+    doLast() {
+        project.ant {
+            taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask", classpath: configurations.jaxb.asPath
+            mkdir(dir: sourcesDir)
+
+            xjc(destdir: sourcesDir) {
+                arg(value: "-wsdl")
+                produces(dir: sourcesDir, includes: "**/*.java")
+                schema(dir: 'src/main/resources/schemas/my', includes: "**/*.xsd")
+            }
+//            xjc(package: packageName, destdir: project.ext.generatedSrcDir){
+//                    schema(dir: ${schemaDir}, includes: "**/*.xsd")
+//            }
+        }
+    }
+}
+
+

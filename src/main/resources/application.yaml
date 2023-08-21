@@ -1,0 +1,79 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: "${server.servlet.application-display-name}"
+  cache:
+    jcache:
+      provider: "org.ehcache.jsr107.EhcacheCachingProvider"
+
+  datasource:
+    url: "jdbc:mysql://localhost:8306/db_name"
+    username: "username"
+    password: "****"
+  freemarker:
+    enabled: true
+    suffix: ".ftl"
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.MySQLDialect"
+        format_sql: false
+        show_sql: false
+        enable_lazy_load_no_trans: true
+  flyway:
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    baseline-on-migrate: true
+    enabled: false
+
+management:
+  endpoint:
+    caches:
+      enabled: true
+    metrics:
+      enabled: true
+    features:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: [ "info", "health", "caches", "metrics", "features"]
+
+playqd:
+  workingDir: "path to working dir"
+  logging:
+    logSoapResponse: false
+  mediaSources:
+    - name: "Name"
+      dir: "path to dir"
+      scanOnStart: true
+      ignoreDirs: []
+  upnp:
+    action:
+      browse:
+        maxDisplayedRecentlyAdded: 100
+        maxDisplayedRecentlyPlayed: 100
+    streamServer:
+      host: ""
+      port: ${server.port}
+
+logging:
+  level:
+    org.jupnp: WARN
+    org.jupnp.transport: WARN
+    io.playqd: INFO
+    org.springframework.jdbc.core.JdbcTemplate: INFO
+    org.springframework.data: INFO
+    org.springframework.web: INFO
+    org.springframework.ws: INFO
+    io.playqd.mediaserver.api.soap.interceptor.PrettyPrintPayloadLoggingInterceptor: DEBUG
+    org.jaudiotagger.audio: ERROR
+    org.jaudiotagger.tag: ERROR

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://www.playqd.io/webservice/model/xsd"
+           xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+           targetNamespace="http://www.playqd.io/webservice/model/xsd" elementFormDefault="qualified">
+
+    <xs:complexType name="Envelope">
+        <xs:sequence>
+            <xs:element name="Body" type="tns:Body"/>
+        </xs:sequence>
+        <xs:attribute name="xmlns" type="xs:int"/>
+    </xs:complexType>
+
+    <xs:complexType name="Body">
+        <xs:sequence>
+            <xs:element name="Browse" type="tns:Browse"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Browse">
+        <xs:sequence>
+            <xs:element name="ObjectID" type="xs:string"/>
+            <xs:element name="BrowseFlag" type="tns:BrowseFlag"/>
+            <xs:element name="Filter" type="xs:string"/>
+            <xs:element name="StartingIndex" type="xs:int"/>
+            <xs:element name="RequestedCount" type="xs:int"/>
+            <xs:element name="SortCriteria" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="BrowseFlag">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BrowseDirectChildren"/>
+            <xs:enumeration value="BrowseMetadata"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
