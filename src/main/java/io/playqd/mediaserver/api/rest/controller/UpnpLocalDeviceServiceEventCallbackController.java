@@ -9,8 +9,6 @@ import org.springframework.xml.transform.TransformerHelper;
 
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Map;
 
