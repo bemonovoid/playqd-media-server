@@ -13,14 +13,15 @@ import org.jupnp.util.SpecificationViolationReporter;
 @Slf4j
 class PlayqdUpnpServiceImpl extends UpnpServiceImpl implements PlayqdUpnpService {
 
-    private final LocalDevice mediaServerDevice = PlayqdLocalDevice.createMediaServerDevice();
+    private final LocalDevice mediaServerDevice;
 
     static {
         NetworkConfiguration.start();
     }
 
-    public PlayqdUpnpServiceImpl(UpnpServiceProperties upnpServiceProperties) {
+    public PlayqdUpnpServiceImpl(UpnpServiceProperties upnpServiceProperties, String deviceId) {
         super(new PlayqdUpnpServiceConfiguration(upnpServiceProperties));
+        this.mediaServerDevice = PlayqdLocalDevice.createMediaServerDevice(deviceId);
         SpecificationViolationReporter.disableReporting();
     }
 

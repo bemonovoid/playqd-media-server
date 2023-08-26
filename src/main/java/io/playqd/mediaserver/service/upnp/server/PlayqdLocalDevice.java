@@ -12,16 +12,15 @@ import org.jupnp.model.types.UDN;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 public class PlayqdLocalDevice extends LocalDevice {
 
     private final DeviceDetailsProvider deviceDetailsProvider;
 
-    public PlayqdLocalDevice() throws ValidationException {
+    public PlayqdLocalDevice(String deviceId) throws ValidationException {
         super(
-                new DeviceIdentity(new UDN(UUID.randomUUID().toString())),
+                new DeviceIdentity(new UDN(deviceId)),
                 new UDADeviceType("MediaServer"),
                 null,
                 new Icon[]{},
@@ -39,9 +38,9 @@ public class PlayqdLocalDevice extends LocalDevice {
         return this.getDetails();
     }
 
-    public static LocalDevice createMediaServerDevice() {
+    public static LocalDevice createMediaServerDevice(String deviceId) {
         try {
-            return new PlayqdLocalDevice();
+            return new PlayqdLocalDevice(deviceId);
         } catch (ValidationException e) {
             log.error("Error in upnp local device creation", e);
             return null;

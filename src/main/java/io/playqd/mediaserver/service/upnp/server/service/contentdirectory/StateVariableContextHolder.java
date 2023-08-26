@@ -4,6 +4,7 @@ import io.playqd.mediaserver.model.StateVariables;
 
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public interface StateVariableContextHolder {
 
@@ -11,6 +12,8 @@ public interface StateVariableContextHolder {
 
     <T> Optional<T> get(StateVariables stateVariable);
 
-    <T extends Serializable> T set(StateVariables stateVariable, T newValue);
+    <T extends Serializable> T getOrUpdate(StateVariables stateVariable, Supplier<T> newValue);
+
+    <T extends Serializable> void set(StateVariables stateVariable, T newValue);
 
 }

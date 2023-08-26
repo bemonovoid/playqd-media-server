@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Slf4j
 @Component
@@ -25,11 +26,11 @@ class StateVariableContextHolderImpl implements StateVariableContextHolder {
 
     @Override
     public <T> T getOrThrow(StateVariables stateVariable) {
-        Optional<T> mayBeSystemUpdateId = get(stateVariable);
-        if (mayBeSystemUpdateId.isEmpty()) {
+        Optional<T> mayBeStateVariable = get(stateVariable);
+        if (mayBeStateVariable.isEmpty()) {
             throw new PlayqdException(stateVariable.getVariableName() + " was not found");
         }
-        return mayBeSystemUpdateId.get();
+        return mayBeStateVariable.get();
     }
 
     @Override
@@ -38,8 +39,17 @@ class StateVariableContextHolderImpl implements StateVariableContextHolder {
     }
 
     @Override
-    public <T extends Serializable> T set(StateVariables stateVariable, T newValue) {
-        return stateVariableDao.set(stateVariable, newValue);
+    public <T extends Serializable> T getOrUpdate(StateVariables stateVariable, Supplier<T> newValue) {
+        Optional<T> mayBeStateVariable = get(stateVariable);
+        if (mayBeStateVariable.isEmpty()) {
+            set(stateVariable, newValue.get());
+        }
+        return mayBeStateVariable.orElse(newValue.get());
+    }
+
+    @Override
+    public <T extends Serializable> void set(StateVariables stateVariable, T newValue) {
+        stateVariableDao.set(stateVariable, newValue);
     }
 
     @EventListener(MediaSourceContentChangedEvent.class)

@@ -9,6 +9,6 @@ public interface StateVariableDao {
 
     <T> Optional<T> get(StateVariables stateVariable);
 
-    <T extends Serializable> T set(StateVariables stateVariable, T value);
+    <T extends Serializable> void set(StateVariables stateVariable, T value);
 
 }
