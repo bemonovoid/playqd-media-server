@@ -7,8 +7,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 @Slf4j
 @Component
 class MediaSourceInitializer implements ApplicationRunner {
@@ -43,10 +41,7 @@ class MediaSourceInitializer implements ApplicationRunner {
     }
 
     private void initSystemUpdateId() {
-        Optional<Integer> mayBeSystemUpdateId = stateVariableContextHolder.get(StateVariables.SYSTEM_UPDATE_ID);
-        if (mayBeSystemUpdateId.isEmpty()) {
-            stateVariableContextHolder.set(StateVariables.SYSTEM_UPDATE_ID, 1);
-        }
+        stateVariableContextHolder.getOrUpdate(StateVariables.SYSTEM_UPDATE_ID, () -> 1);
     }
 
 }

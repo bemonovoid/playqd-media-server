@@ -3,11 +3,14 @@ package io.playqd.mediaserver.model;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.function.Function;
 
 public enum StateVariables {
 
-    SYSTEM_UPDATE_ID("SystemUpdateID", Object::toString, Integer::valueOf);
+    LOCAL_DEVICE_ID("LocalDeviceID", Objects::toString, value -> value),
+
+    SYSTEM_UPDATE_ID("SystemUpdateID", Objects::toString, Integer::valueOf);
 
     @Getter
     private final String variableName;

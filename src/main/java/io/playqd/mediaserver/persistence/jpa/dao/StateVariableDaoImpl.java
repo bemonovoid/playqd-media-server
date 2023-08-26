@@ -28,7 +28,7 @@ class StateVariableDaoImpl implements StateVariableDao {
     }
 
     @Override
-    public <T extends Serializable> T set(StateVariables stateVariable, T value) {
+    public <T extends Serializable> void set(StateVariables stateVariable, T value) {
         var entity = repository.findFirstByKey(stateVariable).orElseGet(() -> {
             var e = new StateVariableJpaEntity();
             e.setKey(stateVariable);
@@ -36,7 +36,6 @@ class StateVariableDaoImpl implements StateVariableDao {
         });
         entity.setValue(stateVariable.getSerializer().apply(value));
         repository.saveAndFlush(entity);
-        return value;
     }
 
 }
