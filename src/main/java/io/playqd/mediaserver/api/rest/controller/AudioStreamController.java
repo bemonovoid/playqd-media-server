@@ -46,13 +46,14 @@ class AudioStreamController {
                 audioFile.location(),
                 audioFile.mimeType());
 
-        getHttpRangeRequestIfExists(httpHeaders)
-                .filter(httpRange -> httpRange.getClass().getSimpleName().equals("ByteRange"))
-                // 'getRangeStart' input is ignored for ByteRange and can be anything.
-                .filter(httpRange -> httpRange.getRangeStart(0) == 0)
-                .ifPresent(httpRange -> {
-                    eventPublisher.publishEvent(new AudioFileByteStreamRequestedEvent(audioFile.id()));
-                });
+        getHttpRangeRequestIfExists(httpHeaders).ifPresentOrElse(
+                httpRange -> {
+                    // 'getRangeStart' length is ignored for ByteRange and can be anything.
+                    if (httpRange.getRangeStart(0) == 0) {
+                        eventPublisher.publishEvent(new AudioFileByteStreamRequestedEvent(audioFile.id()));
+                    }
+                },
+                () -> eventPublisher.publishEvent(new AudioFileByteStreamRequestedEvent(audioFile.id())));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, audioFile.mimeType())
@@ -68,6 +69,9 @@ class AudioStreamController {
         }
         if (httpHeaders.getRange().size() > 1) {
             log.warn("'Range' header contains multiple ranges. The first range is being used.");
+        }
+        if (!httpHeaders.getRange().getClass().getSimpleName().equals("ByteRange")) {
+            return Optional.empty();
         }
         return Optional.of(httpHeaders.getRange().get(0));
     }

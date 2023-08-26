@@ -19,22 +19,20 @@ public enum SystemContainerName {
 
     GENRE_ALBUM("GenreAlbumsContainerObjectID", "Genre/Album"),
 
-    TRACKS_RECENTLY_ADDED("TracksLastAddedContainerObjectID", "Recently added"),
-
-    TRACKS_RECENTLY_PLAYED("TracksLastPlayedContainerObjectID", "Recently played"),
+    PLAYLISTS("PlaylistsContainerObjectID", "Playlists"),
 
     TRACKS_MOST_PLAYED("TracksMostPlayedContainerObjectId", "Most played"),
 
-    PLAYLISTS("PlaylistsContainerObjectID", "Playlists");
+    TRACKS_RECENTLY_ADDED("TracksLastAddedContainerObjectID", "Recently added"),
+
+    TRACKS_RECENTLY_PLAYED("TracksLastPlayedContainerObjectID", "Recently played");
 
     private final String objectId;
     private final String dcTitleName;
 
     private static final Set<SystemContainerName> MUSIC_LIBRARY_CHILDREN = Set.of(
-            ARTIST_ALBUM, ARTIST_TRACK,
-            GENRE_ARTIST,  GENRE_ALBUM,
-            TRACKS_MOST_PLAYED, TRACKS_RECENTLY_ADDED, TRACKS_RECENTLY_PLAYED,
-            PLAYLISTS);
+            ARTIST_ALBUM, ARTIST_TRACK, GENRE_ARTIST,  GENRE_ALBUM, PLAYLISTS,
+            TRACKS_MOST_PLAYED, TRACKS_RECENTLY_ADDED, TRACKS_RECENTLY_PLAYED);
 
     SystemContainerName(String objectId, String dcTitleName) {
         this.objectId = objectId;
