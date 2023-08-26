@@ -36,7 +36,9 @@ class AlbumArtController {
                         .build());
     }
 
-    @GetMapping(path = "/{albumId}/{albumFolderImageFileName}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+    @GetMapping(
+            path = "/{albumId}/{albumFolderImageFileName}",
+            produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     ResponseEntity<byte[]> get (@PathVariable String albumId, @PathVariable String albumFolderImageFileName) {
         var mayBeAlbumArt = albumArtService.get(albumId, albumFolderImageFileName);
         return mayBeAlbumArt

@@ -17,7 +17,7 @@ public class SupportedImageFiles {
             var fileName = FileUtils.getFileNameWithoutExtension(path.getFileName().toString());
             var isAlbumArtFile = ALBUM_ART_FILE_NAMES.contains(fileName);
             if (!isAlbumArtFile) {
-                isAlbumArtFile = fileName.contains(audioFile.albumName().toLowerCase());
+                isAlbumArtFile = fileName.toLowerCase().contains(audioFile.albumName().toLowerCase());
             }
             return isAlbumArtFile;
         }
