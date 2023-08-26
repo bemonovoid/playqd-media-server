@@ -173,4 +173,16 @@ tasks.register('genJaxb') {
     }
 }
 
+tasks.named('build') {
+    finalizedBy {
+        'copyJarToDeployFolder'
+    }
+}
+
+tasks.register('copyJarToDeployFolder', Copy) {
+    from "build/libs/playqd-media-server-0.0.1.jar"
+    into "C:/Users/gregory.kosik/.playqd/bin"
+    include "*.jar"
+}
+
 
