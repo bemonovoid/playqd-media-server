@@ -1,14 +1,18 @@
 package io.playqd.mediaserver.persistence;
 
-import io.playqd.mediaserver.model.StateVariables;
+import io.playqd.mediaserver.service.upnp.server.service.StateVariable;
+import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
 
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.Set;
 
 public interface StateVariableDao {
 
-    <T> Optional<T> get(StateVariables stateVariable);
+    Set<StateVariable> getAll();
 
-    <T extends Serializable> void set(StateVariables stateVariable, T value);
+    <T> Optional<T> get(StateVariableName stateVariable);
+
+    <T extends Serializable> void set(StateVariableName stateVariable, T value);
 
 }

@@ -1,8 +1,8 @@
 package io.playqd.mediaserver.service.upnp.server;
 
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
-import io.playqd.mediaserver.model.StateVariables;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.StateVariableContextHolder;
+import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
+import io.playqd.mediaserver.service.upnp.server.service.StateVariableContextHolder;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Service;
@@ -35,6 +35,6 @@ public class UpnpServiceContextHolder {
 
     private static String getDeviceId(StateVariableContextHolder stateVariableContextHolder) {
         return stateVariableContextHolder.getOrUpdate(
-                StateVariables.LOCAL_DEVICE_ID, () -> UUID.randomUUID().toString());
+                StateVariableName.LOCAL_DEVICE_ID, () -> UUID.randomUUID().toString());
     }
 }
