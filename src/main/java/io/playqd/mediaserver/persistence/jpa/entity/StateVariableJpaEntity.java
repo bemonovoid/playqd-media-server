@@ -1,6 +1,6 @@
 package io.playqd.mediaserver.persistence.jpa.entity;
 
-import io.playqd.mediaserver.model.StateVariables;
+import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -20,7 +20,7 @@ public class StateVariableJpaEntity extends PersistableAuditableEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = COL_VARIABLE_NAME, nullable = false, unique = true)
-    private StateVariables key;
+    private StateVariableName key;
 
     @Column(name = COL_VALUE, nullable = false)
     private String value;

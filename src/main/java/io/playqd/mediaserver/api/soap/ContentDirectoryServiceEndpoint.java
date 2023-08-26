@@ -1,13 +1,13 @@
 package io.playqd.mediaserver.api.soap;
 
 import io.playqd.mediaserver.api.soap.data.Browse;
-import io.playqd.mediaserver.model.StateVariables;
+import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowseResult;
 import io.playqd.mediaserver.service.upnp.server.service.UpnpActionHandler;
 import io.playqd.mediaserver.service.upnp.server.service.UpnpActionHandlerException;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.BrowsableObjectValidations;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.BrowseContext;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.StateVariableContextHolder;
+import io.playqd.mediaserver.service.upnp.server.service.StateVariableContextHolder;
 import io.playqd.mediaserver.templates.TemplateNames;
 import io.playqd.mediaserver.templates.TemplateService;
 import org.jupnp.model.types.ErrorCode;
@@ -42,7 +42,7 @@ class ContentDirectoryServiceEndpoint {
     Source getSystemUpdateId(MessageContext request) {
         var responseXml = templateService.processToString(
                 TemplateNames.SYSTEM_UPDATE_ID_RESPONSE,
-                stateVariableContextHolder.getOrThrow(StateVariables.SYSTEM_UPDATE_ID));
+                stateVariableContextHolder.getOrThrow(StateVariableName.SYSTEM_UPDATE_ID));
         return new StreamSource(new StringReader(responseXml));
     }
 
@@ -109,6 +109,6 @@ class ContentDirectoryServiceEndpoint {
                 "objects", response.objects(),
                 "numberReturned", response.numberReturned(),
                 "totalMatches", response.totalMatches(),
-                "updateId", stateVariableContextHolder.getOrThrow(StateVariables.SYSTEM_UPDATE_ID)));
+                "updateId", stateVariableContextHolder.getOrThrow(StateVariableName.SYSTEM_UPDATE_ID)));
     }
 }

@@ -1,14 +1,19 @@
-package io.playqd.mediaserver.service.mediasource;
+package io.playqd.mediaserver.config.runner;
 
-import io.playqd.mediaserver.model.StateVariables;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.StateVariableContextHolder;
+import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
+import io.playqd.mediaserver.service.mediasource.MediaSourceScannerService;
+import io.playqd.mediaserver.service.mediasource.MediaSourceService;
+import io.playqd.mediaserver.service.mediasource.MediaSourceWatcherService;
+import io.playqd.mediaserver.service.upnp.server.service.StateVariableContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@Order(PlayqdApplicationRunnerOrder.MEDIA_SOURCE_INITIALIZER)
 class MediaSourceInitializer implements ApplicationRunner {
 
     private final MediaSourceService mediaSourceService;
@@ -41,7 +46,7 @@ class MediaSourceInitializer implements ApplicationRunner {
     }
 
     private void initSystemUpdateId() {
-        stateVariableContextHolder.getOrUpdate(StateVariables.SYSTEM_UPDATE_ID, () -> 1);
+        stateVariableContextHolder.getOrUpdate(StateVariableName.SYSTEM_UPDATE_ID, () -> 1);
     }
 
 }

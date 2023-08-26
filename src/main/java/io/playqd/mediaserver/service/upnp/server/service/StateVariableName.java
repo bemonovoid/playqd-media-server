@@ -1,4 +1,4 @@
-package io.playqd.mediaserver.model;
+package io.playqd.mediaserver.service.upnp.server.service;
 
 import lombok.Getter;
 
@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.function.Function;
 
-public enum StateVariables {
+public enum StateVariableName {
 
     LOCAL_DEVICE_ID("LocalDeviceID", Objects::toString, value -> value),
 
@@ -21,9 +21,9 @@ public enum StateVariables {
     @Getter
     private final Function<String, ? extends Serializable> deserializer;
 
-    StateVariables(String variableName,
-                   Function<Serializable, String> serializer,
-                   Function<String, ? extends Serializable> deserializer) {
+    StateVariableName(String variableName,
+                      Function<Serializable, String> serializer,
+                      Function<String, ? extends Serializable> deserializer) {
         this.variableName = variableName;
         this.serializer = serializer;
         this.deserializer = deserializer;

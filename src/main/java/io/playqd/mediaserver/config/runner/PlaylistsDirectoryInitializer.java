@@ -1,9 +1,10 @@
-package io.playqd.mediaserver.service.playlist;
+package io.playqd.mediaserver.config.runner;
 
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
@@ -11,6 +12,7 @@ import java.nio.file.Path;
 
 @Slf4j
 @Component
+@Order(PlayqdApplicationRunnerOrder.PLAYLISTS_DIRECTORY_INITIALIZER)
 class PlaylistsDirectoryInitializer implements ApplicationRunner {
 
     private final PlayqdProperties playqdProperties;

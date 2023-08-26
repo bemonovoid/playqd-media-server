@@ -1,17 +1,17 @@
-package io.playqd.mediaserver.service.upnp.server.service.contentdirectory.impl;
+package io.playqd.mediaserver.service.upnp.server.service;
 
 import io.playqd.mediaserver.exception.PlayqdException;
-import io.playqd.mediaserver.model.StateVariables;
 import io.playqd.mediaserver.model.event.AudioFileByteStreamRequestedEvent;
 import io.playqd.mediaserver.model.event.MediaSourceContentChangedEvent;
 import io.playqd.mediaserver.persistence.StateVariableDao;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.StateVariableContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -25,7 +25,12 @@ class StateVariableContextHolderImpl implements StateVariableContextHolder {
     }
 
     @Override
-    public <T> T getOrThrow(StateVariables stateVariable) {
+    public Set<StateVariable> getAll() {
+        return stateVariableDao.getAll();
+    }
+
+    @Override
+    public <T> T getOrThrow(StateVariableName stateVariable) {
         Optional<T> mayBeStateVariable = get(stateVariable);
         if (mayBeStateVariable.isEmpty()) {
             throw new PlayqdException(stateVariable.getVariableName() + " was not found");
@@ -34,12 +39,12 @@ class StateVariableContextHolderImpl implements StateVariableContextHolder {
     }
 
     @Override
-    public <T> Optional<T> get(StateVariables stateVariable) {
+    public <T> Optional<T> get(StateVariableName stateVariable) {
         return stateVariableDao.get(stateVariable);
     }
 
     @Override
-    public <T extends Serializable> T getOrUpdate(StateVariables stateVariable, Supplier<T> newValue) {
+    public <T extends Serializable> T getOrUpdate(StateVariableName stateVariable, Supplier<T> newValue) {
         Optional<T> mayBeStateVariable = get(stateVariable);
         if (mayBeStateVariable.isEmpty()) {
             set(stateVariable, newValue.get());
@@ -48,7 +53,7 @@ class StateVariableContextHolderImpl implements StateVariableContextHolder {
     }
 
     @Override
-    public <T extends Serializable> void set(StateVariables stateVariable, T newValue) {
+    public <T extends Serializable> void set(StateVariableName stateVariable, T newValue) {
         stateVariableDao.set(stateVariable, newValue);
     }
 
@@ -63,9 +68,9 @@ class StateVariableContextHolderImpl implements StateVariableContextHolder {
     }
 
     private void updateSystemUpdateId() {
-        Integer oldSystemUpdateId = getOrThrow(StateVariables.SYSTEM_UPDATE_ID);
+        Integer oldSystemUpdateId = getOrThrow(StateVariableName.SYSTEM_UPDATE_ID);
         var newSystemUpdateId = oldSystemUpdateId + 1;
-        set(StateVariables.SYSTEM_UPDATE_ID, newSystemUpdateId);
+        set(StateVariableName.SYSTEM_UPDATE_ID, newSystemUpdateId);
         log.info("'SystemUpdateID' was updated from '{}' to '{}'", oldSystemUpdateId, newSystemUpdateId);
     }
 
