@@ -7,6 +7,7 @@ import io.playqd.mediaserver.model.AudioFile;
 import io.playqd.mediaserver.model.FileUtils;
 import io.playqd.mediaserver.model.SupportedImageFiles;
 import io.playqd.mediaserver.persistence.AudioFileDao;
+import io.playqd.mediaserver.util.ImageUtils;
 import io.playqd.mediaserver.util.MimeTypeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -25,6 +27,9 @@ class AlbumArtServiceImpl implements AlbumArtService {
 
     private final String hostAddress;
     private final AudioFileDao audioFileDao;
+
+    private static final int IMAGE_WIDTH_SMALL = 250;
+    private static final int IMAGE_HEIGHT_SMALL = 250;
 
     public AlbumArtServiceImpl(AudioFileDao audioFileDao, PlayqdProperties playqdProperties) {
         this.audioFileDao = audioFileDao;
@@ -79,15 +84,14 @@ class AlbumArtServiceImpl implements AlbumArtService {
             }
 
             var id = new AlbumArtId.AlbumId(audioFile.albumId());
-            var uri = buildAlbumArtUri(id.get());
-            var binary = artwork.getBinaryData();
-            var mimeType = MimeTypeUtil.detect(binary);
-            var metadata = new AlbumArtMetadata(
-                    binary.length, mimeType, new SizeHeightWidth(artwork.getWidth(), artwork.getHeight()));
+            var imageByteArray = artwork.getBinaryData();
+            var mimeType = MimeTypeUtil.detect(imageByteArray);
+            var metadata = new ImageMetadata(
+                    imageByteArray.length, mimeType, new SizeHeightWidth(artwork.getWidth(), artwork.getHeight()));
 
             log.info("Album art was found in audio file metadata.");
 
-            return Optional.of(new AlbumArt(id, uri, metadata, () -> binary));
+            return Optional.of(new AlbumArt(id, createImageResources(id, imageByteArray), metadata));
         } catch (Exception e) {
             log.error("Failed to read audio file metadata at: {}", audioFile.path(), e);
             return Optional.empty();
@@ -119,14 +123,36 @@ class AlbumArtServiceImpl implements AlbumArtService {
 
     private AlbumArt createAlbumArtFromAlbumFolderPath(Path path, AudioFile audioFile) {
         var id = new AlbumArtId.AlbumFolderImageFileName(audioFile.albumId(), path.getFileName().toString());
-        var uri = buildAlbumArtUri(id.get());
         var mimeType = MimeTypeUtil.detect(path.toString());
-        var metadata = new AlbumArtMetadata(FileUtils.getFileSize(path), mimeType, SizeHeightWidth.none());
-        return new AlbumArt(id, uri, metadata, BinaryData.fromLocation(path.toString()));
+        var metadata = new ImageMetadata(FileUtils.getFileSize(path), mimeType, SizeHeightWidth.none());
+        var imageByteArray = new byte[0];
+        try {
+            imageByteArray = Files.readAllBytes(path);
+        } catch (IOException e) {
+            log.error("Failed to read album folder image file content.", e);
+        }
+        return new AlbumArt(id, createImageResources(id, imageByteArray), metadata);
     }
 
     private String buildAlbumArtUri(String id) {
+        return buildAlbumArtUri(id, null);
+    }
+
+    private String buildAlbumArtUri(String id, ImageSizeRequestParam imageSizeName) {
+        if (imageSizeName != null) {
+            return String.format("http://%s%s/%s?size=%s",
+                    hostAddress, RestControllerApiBasePath.ALBUM_ART, id, imageSizeName.name());
+        }
         return String.format("http://%s%s/%s", hostAddress, RestControllerApiBasePath.ALBUM_ART, id);
+    }
+
+    private ImageResources createImageResources(AlbumArtId id, byte[] originalImageByteArray) {
+        return new ImageResources(
+                new ImageResource(buildAlbumArtUri(id.get()), originalImageByteArray),
+                Map.of(ImageSizeRequestParam.sm,
+                        new ImageResource(
+                                buildAlbumArtUri(id.get(), ImageSizeRequestParam.sm),
+                                ImageUtils.resize(originalImageByteArray, IMAGE_WIDTH_SMALL, IMAGE_HEIGHT_SMALL))));
     }
 
 }
