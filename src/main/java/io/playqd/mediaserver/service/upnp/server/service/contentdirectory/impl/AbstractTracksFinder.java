@@ -8,6 +8,7 @@ import io.playqd.mediaserver.persistence.AudioFileDao;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowseResult;
 import io.playqd.mediaserver.service.metadata.AlbumArt;
 import io.playqd.mediaserver.service.metadata.AlbumArtService;
+import io.playqd.mediaserver.service.metadata.ImageSizeRequestParam;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jupnp.support.model.ProtocolInfo;
@@ -132,7 +133,8 @@ abstract class AbstractTracksFinder extends BrowsableObjectBuilder implements Br
                 .upnpClass(UpnpClass.musicTrack)
                 .playbackCount(audioFile.playbackCount())
                 .lastPlaybackTime(AudioFile.getLastPlaybackTimeFormatted(audioFile).orElse(null))
-                .albumArtURI(albumArt != null ? albumArt.uri() : null)
+                .albumArtURI(albumArt != null ?
+                        albumArt.resources().getResizedOrOriginal(ImageSizeRequestParam.sm).uri() : null)
                 .build();
     }
 
@@ -174,9 +176,9 @@ abstract class AbstractTracksFinder extends BrowsableObjectBuilder implements Br
     private static ResTag buildResTag(AlbumArt albumArt, MimeType mimeType) {
         return ResTag.builder()
                 .id(albumArt.id().get())
-                .uri(albumArt.uri())
+                .uri(albumArt.resources().getResizedOrOriginal(ImageSizeRequestParam.sm).uri())
                 .protocolInfo(buildImageProtocolInfo(albumArt, mimeType))
-                .size(String.valueOf(albumArt.metadata().fileSize()))
+                .size(String.valueOf(albumArt.metadata().size()))
                 .image(true)
                 .build();
     }
