@@ -18,7 +18,11 @@ public final class SupportedAudioFiles {
     }
 
     public static boolean isSupportedAudioFile(Path path) {
-        return SUPPORTED_AUDIO_EXTENSIONS.contains(FileUtils.getFileExtension(path.toString()));
+        return isSupportedAudioFile(FileUtils.getFileExtension(path.toString()));
+    }
+
+    public static boolean isSupportedAudioFile(String fileExtension) {
+        return SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension);
     }
 
     private SupportedAudioFiles() {

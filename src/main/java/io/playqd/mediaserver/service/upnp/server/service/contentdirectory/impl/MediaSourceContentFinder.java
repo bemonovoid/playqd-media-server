@@ -2,17 +2,16 @@ package io.playqd.mediaserver.service.upnp.server.service.contentdirectory.impl;
 
 import io.playqd.mediaserver.api.soap.data.Browse;
 import io.playqd.mediaserver.exception.PlayqdException;
-import io.playqd.mediaserver.model.AudioFile;
-import io.playqd.mediaserver.model.BrowsableObject;
-import io.playqd.mediaserver.model.FileUtils;
-import io.playqd.mediaserver.model.SupportedAudioFiles;
+import io.playqd.mediaserver.model.*;
 import io.playqd.mediaserver.persistence.AudioFileDao;
 import io.playqd.mediaserver.persistence.BrowsableObjectDao;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowsableObjectSetter;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowseResult;
 import io.playqd.mediaserver.persistence.jpa.dao.PersistedBrowsableObject;
+import io.playqd.mediaserver.service.upnp.server.service.UpnpActionHandlerException;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jupnp.model.types.ErrorCode;
 import org.jupnp.support.model.ProtocolInfo;
 import org.jupnp.util.MimeType;
 import org.springframework.data.domain.PageRequest;
@@ -45,17 +44,26 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
 
     @Override
     public BrowseResult find(BrowseContext context) {
-        var parent = browsableObjectDao.getOneByObjectId(context.getRequest().getObjectID());
-        if (!Files.isDirectory(parent.location())) {
-            // This shouldn't really happen, because the renderers must not browse a file, unless the object type was
-            // mistakenly set to container type
-            throw new PlayqdException("Browsing a file is illegal.");
+        var parentObject = getParent(context);
+        if (Files.isDirectory(parentObject.location())) {
+            // Prepare children object if the parentObject has not been visited yet
+            if (!browsableObjectDao.hasChildren(parentObject.id())) {
+                buildChildrenObjects(parentObject);
+            }
+            return queryChildrenInternal(parentObject.id(), context.getRequest());
         }
-        // Prepare children object if the parent has not been visited yet
-        if (!browsableObjectDao.hasChildren(parent.id())) {
-            buildChildrenObjects(parent);
-        }
-        return queryChildrenInternal(parent.id(), context.getRequest());
+        // This shouldn't really happen, because the renderers must not browse a file, unless the object type was
+        // mistakenly set to container type
+        log.error("Browsing a file is illegal.");
+        throw new UpnpActionHandlerException(ErrorCode.ARGUMENT_VALUE_INVALID);
+    }
+
+    private PersistedBrowsableObject getParent(BrowseContext context) {
+        return browsableObjectDao.getOneByObjectId(context.getObjectId())
+                .orElseThrow(() -> {
+                    log.error("Browsable object with objectId '{}' was not found.", context.getObjectId());
+                    return new UpnpActionHandlerException(ErrorCode.ARGUMENT_VALUE_INVALID);
+                });
     }
 
     private BrowseResult queryChildrenInternal(long parentId, Browse browseRequest) {
@@ -93,14 +101,20 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
         var files = dirsAndFiles.get(false);
         if (!CollectionUtils.isEmpty(files)) {
 
-            var locations = files.stream().map(obj -> obj.location().toString()).toList();
+            // true -> audio files; false -> all the rest supported files
+            var mediaFileLocations = files.stream()
+                    .collect(Collectors.groupingBy(obj -> SupportedAudioFiles.isSupportedAudioFile(obj.location())));
 
-            var audioFilesByLocation = audioFileDao.getAudioFilesByLocationIn(locations).stream()
+            var audioFileLocations = mediaFileLocations.getOrDefault(true, Collections.emptyList()).stream()
+                    .map(obj -> obj.location().toString()).toList();
+
+            // Collect audio files metadata to build content directory item objects
+            var pathToAudioFileMap = audioFileDao.getAudioFilesByLocationIn(audioFileLocations).stream()
                     .collect(Collectors.toMap(AudioFile::path, v -> v));
 
             var itemObjects = files.stream()
-                    .filter(obj -> audioFilesByLocation.containsKey(obj.location()))
-                    .map(obj -> buildItemObject(browseRequest, obj, audioFilesByLocation.get(obj.location())))
+//                    .filter(obj -> pathToAudioFileMap.containsKey(obj.location()))
+                    .map(obj -> buildItemObject(browseRequest, obj, pathToAudioFileMap.get(obj.location())))
                     .toList();
             if (CollectionUtils.isEmpty(result)) {
                 return new ArrayList<>(itemObjects);
@@ -113,12 +127,20 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
     private void buildChildrenObjects(PersistedBrowsableObject parent) {
         try (Stream<Path> dirs = Files.list(parent.location())) { //TODO check if exists
             var childrenSetters = dirs
-                    .filter(path -> {
+                    .map(path -> {
                         if (Files.isDirectory(path)) {
-                            return true;
+                            return Tuple.from(path, UpnpClass.storageFolder);
                         }
-                        return SupportedAudioFiles.isSupportedAudioFile(path);
+                        var fileExtension = FileUtils.getFileExtension(path.toString());
+                        if (SupportedAudioFiles.isSupportedAudioFile(fileExtension)) {
+                            return Tuple.from(path, UpnpClass.audioItem);
+                        }
+                        if (SupportedImageFiles.isSupportedImageFile(fileExtension)) {
+                            return Tuple.from(path, UpnpClass.image);
+                        }
+                        return Tuple.from(path, UpnpClass.item);
                     })
+                    .filter(tuple -> UpnpClass.item != tuple.right())
                     .map(this::createBrowsableObjectSetter)
                     .collect(Collectors.toList());
             browsableObjectDao.save(parent, childrenSetters);
@@ -127,12 +149,13 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
         }
     }
 
-    private Consumer<BrowsableObjectSetter> createBrowsableObjectSetter(Path path) {
-        var isDirectory = Files.isDirectory(path);
+    private Consumer<BrowsableObjectSetter> createBrowsableObjectSetter(Tuple<Path, UpnpClass> tuple) {
+        var isStorageFolder = UpnpClass.storageFolder == tuple.right();
         return setter -> {
-            setter.setDcTitle(resolveDcTitle(path, isDirectory));
-            setter.setLocation(path.toString());
-            setter.setChildrenCountTransient(isDirectory ? countChildren(path) : 0);
+            setter.setDcTitle(resolveDcTitle(tuple.left(), isStorageFolder));
+            setter.setLocation(tuple.left().toString());
+            setter.setUpnpClass(tuple.right());
+            setter.setChildrenCountTransient(isStorageFolder ? countChildren(tuple.left()) : 0);
         };
     }
 

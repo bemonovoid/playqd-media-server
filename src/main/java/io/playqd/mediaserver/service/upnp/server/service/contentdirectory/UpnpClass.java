@@ -6,6 +6,8 @@ public enum UpnpClass {
 
     image("object.item.imageItem"),
 
+    item("object.item"),
+
     musicArtist("object.container.person.musicArtist"),
 
     musicAlbum("object.container.album.musicAlbum"),

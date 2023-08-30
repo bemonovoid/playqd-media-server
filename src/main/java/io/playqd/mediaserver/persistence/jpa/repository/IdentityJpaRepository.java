@@ -1,5 +1,6 @@
 package io.playqd.mediaserver.persistence.jpa.repository;
 
+import io.playqd.mediaserver.exception.DatabaseEntityNotFoundException;
 import io.playqd.mediaserver.exception.PlayqdException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +13,7 @@ public interface IdentityJpaRepository<T> extends JpaRepository<T, Long> {
         try {
             return getReferenceById(id);
         } catch (EntityNotFoundException e) {
-            return findById(id).orElseThrow(() -> new PlayqdException(e.getMessage(), e));
+            return findById(id).orElseThrow(() -> new DatabaseEntityNotFoundException(e.getMessage(), e));
         }
     }
 }
