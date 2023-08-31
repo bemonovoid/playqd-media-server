@@ -44,10 +44,12 @@ final class MusicLibraryGenresFinder implements BrowsableObjectFinder {
     }
 
     private static BrowsableObject buildBrowsableObject(BrowseContext context, Genre genre) {
+        var childCount = countChild(context, genre);
         return BrowsableObjectImpl.builder()
                 .objectId(buildGenreObjectId(context, genre))
                 .parentObjectId(context.getRequest().getObjectID())
-                .childCount(countChild(context, genre))
+                .childCount(childCount)
+                .childContainerCount(childCount)
                 .dc(buildDcTagValues(genre))
                 .upnp(buildUpnpTagValues(genre))
                 .build();
@@ -69,7 +71,7 @@ final class MusicLibraryGenresFinder implements BrowsableObjectFinder {
                 .build();
     }
 
-    private static int countChild(BrowseContext context, Genre genre) {
+    private static long countChild(BrowseContext context, Genre genre) {
         switch (context.getRequiredHeader(BrowseContext.HEADER_OBJECT_ID_PATTERN, ObjectIdPattern.class)) {
             case GENRE_ARTISTS_PATH -> {
                 return genre.artistCount();

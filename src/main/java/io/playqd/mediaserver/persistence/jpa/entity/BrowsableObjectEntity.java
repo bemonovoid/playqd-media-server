@@ -26,7 +26,8 @@ public class BrowsableObjectEntity extends PersistableAuditableEntity implements
     private static final String COL_LOCATION = "location";
     private static final String COL_UPNP_CLASS = "upnp_class";
     private static final String COL_PARENT_ID = "parent_id";
-    private static final String COL_CHILDREN_COUNT_TRANSIENT = "children_count_transient";
+    private static final String COL_CHILD_COUNT = "child_count";
+    private static final String COL_CHILD_CONTAINER_COUNT = "child_container_count";
 
     @Column(name = COL_OBJECT_ID, nullable = false)
     private String objectId;
@@ -41,8 +42,11 @@ public class BrowsableObjectEntity extends PersistableAuditableEntity implements
     @Enumerated(EnumType.STRING)
     private UpnpClass upnpClass;
 
-    @Column(name = COL_CHILDREN_COUNT_TRANSIENT)
-    private long childrenCountTransient;
+    @Column(name = COL_CHILD_COUNT)
+    private long childCount;
+
+    @Column(name = COL_CHILD_CONTAINER_COUNT)
+    private long childContainerCount;
 
     @Column(name = COL_PARENT_ID, insertable=false, updatable=false)
     private Long parentId;
@@ -57,8 +61,8 @@ public class BrowsableObjectEntity extends PersistableAuditableEntity implements
     )
     private List<BrowsableObjectEntity> children;
 
-    public final long getChildCount() {
-        return !CollectionUtils.isEmpty(getChildren()) ? getChildren().size() : getChildrenCountTransient();
+    public final long getChildCountAvailable() {
+        return !CollectionUtils.isEmpty(getChildren()) ? getChildren().size() : getChildCount();
     }
 
 }

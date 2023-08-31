@@ -1,7 +1,6 @@
 package io.playqd.mediaserver.service.upnp.server.service.contentdirectory.impl;
 
 import io.playqd.mediaserver.api.soap.data.Browse;
-import io.playqd.mediaserver.exception.PlayqdException;
 import io.playqd.mediaserver.model.BrowsableObject;
 import io.playqd.mediaserver.persistence.BrowsableObjectDao;
 import io.playqd.mediaserver.persistence.MediaSourceDao;
@@ -9,28 +8,28 @@ import io.playqd.mediaserver.persistence.jpa.dao.BrowsableObjectSetter;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowseResult;
 import io.playqd.mediaserver.persistence.jpa.dao.PersistedBrowsableObject;
 import io.playqd.mediaserver.service.mediasource.MediaSource;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.*;
+import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.BrowseContext;
+import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.DcTagValues;
+import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.UpnpClass;
+import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.UpnpTagValues;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 @Slf4j
 @Component
-final class MediaSourcesFinder implements BrowsableObjectFinder {
+final class MediaSourcesFinder extends AbstractFolderContentFinder {
 
     private final MediaSourceDao mediaSourceDao;
-    private final BrowsableObjectDao browsableObjectDao;
 
     public MediaSourcesFinder(MediaSourceDao mediaSourceDao, BrowsableObjectDao browsableObjectDao) {
+        super(browsableObjectDao);
         this.mediaSourceDao = mediaSourceDao;
-        this.browsableObjectDao = browsableObjectDao;
     }
 
     @Override
@@ -53,46 +52,41 @@ final class MediaSourcesFinder implements BrowsableObjectFinder {
                         }
                         return exists;
                     })
-                    .map(this::createBrowsableObjectSetter)
+                    .map(this::toPersistedObjectSetter)
                     .map(browsableObjectDao::save)
                     .toList();
         }
 
         log.info("Retrieved {} media source(s)", objects.size());
 
-        var result = objects.stream().map(source -> fromSource(context.getRequest(), source)).toList();
+        var result = objects.stream().map(source -> fromPersistedObject(context.getRequest(), source)).toList();
 
         return new BrowseResult(objects.size(), objects.size(), result);
     }
 
-    private Consumer<BrowsableObjectSetter> createBrowsableObjectSetter(MediaSource mediaSource) {
-        return createBrowsableObjectSetter(mediaSource.path(), mediaSource.name());
+    private Consumer<BrowsableObjectSetter> toPersistedObjectSetter(MediaSource mediaSource) {
+        return toPersistedObjectSetter(mediaSource.path(), mediaSource.name());
     }
 
-    private Consumer<BrowsableObjectSetter> createBrowsableObjectSetter(Path path, String mediaSourceName) {
+    private Consumer<BrowsableObjectSetter> toPersistedObjectSetter(Path path, String mediaSourceName) {
         return setter -> {
+            var counts = countChildren(path);
             setter.setDcTitle(mediaSourceName);
             setter.setLocation(path.toString());
             setter.setUpnpClass(UpnpClass.storageFolder);
-            setter.setChildrenCountTransient(countChildren(path));
+            setter.setChildCount(counts.totalCount());
+            setter.setChildContainerCount(counts.childContainerCount());
         };
     }
 
-    private static long countChildren(Path path) {
-        try (Stream<Path> dirItems = Files.list(path)) {
-            return dirItems.count();
-        } catch (IOException e) {
-            throw new PlayqdException(String.format("Failed counting media source children at %s", path), e);
-        }
-    }
-
-    private static BrowsableObject fromSource(Browse browseRequest, PersistedBrowsableObject source) {
+    private static BrowsableObject fromPersistedObject(Browse browseRequest, PersistedBrowsableObject persistedObject) {
         return BrowsableObjectImpl.builder()
-                .objectId(source.objectId())
+                .objectId(persistedObject.objectId())
                 .parentObjectId(browseRequest.getObjectID())
-                .childCount(source.childrenCount().get())
-                .dc(buildDcTagValues(source))
-                .upnp(buildUpnpTagValues(source))
+                .childCount(persistedObject.childCount().get())
+                .childContainerCount(persistedObject.childContainerCount())
+                .dc(buildDcTagValues(persistedObject))
+                .upnp(buildUpnpTagValues(persistedObject))
                 .build();
     }
 

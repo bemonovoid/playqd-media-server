@@ -19,6 +19,8 @@ public interface BrowsableObject {
 
     long getChildCount();
 
+    long getChildContainerCount();
+
     DcTagValues getDc();
 
     UpnpTagValues getUpnp();

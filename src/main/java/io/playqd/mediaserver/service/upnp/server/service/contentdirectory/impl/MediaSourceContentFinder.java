@@ -35,17 +35,16 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Component
-final class MediaSourceContentFinder implements BrowsableObjectFinder {
+final class MediaSourceContentFinder extends AbstractFolderContentFinder {
 
     private final String hostAddress;
     private final AudioFileDao audioFileDao;
-    private final BrowsableObjectDao browsableObjectDao;
 
     MediaSourceContentFinder(AudioFileDao audioFileDao,
                              PlayqdProperties playqdProperties,
                              BrowsableObjectDao browsableObjectDao) {
+        super(browsableObjectDao);
         this.audioFileDao = audioFileDao;
-        this.browsableObjectDao = browsableObjectDao;
         this.hostAddress = playqdProperties.buildHostAddress();
     }
 
@@ -70,6 +69,7 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
         try (Stream<Path> dirs = Files.list(parent.location())) { //TODO check if exists
             var objectSetters = dirs
                     .map(MediaSourceContentFinder::pathToUpnpClass)
+                    // UpnpClass.item is a generic object for a file we do not support and need to filter out for now
                     .filter(tuple -> UpnpClass.item != tuple.right())
                     .map(this::toBrowsableObjectSetter)
                     .collect(Collectors.toList());
@@ -149,11 +149,13 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
     }
 
     private Consumer<BrowsableObjectSetter> toBrowsableObjectSetter(Tuple<Path, UpnpClass> tuple) {
+        var counts = tuple.right().isContainer() ? countChildren(tuple.left()) : new NestedObjectsCount(0, 0);
         return setter -> {
             setter.setDcTitle(resolveDcTitle(tuple.left(), tuple.right()));
             setter.setLocation(tuple.left().toString());
             setter.setUpnpClass(tuple.right());
-            setter.setChildrenCountTransient(tuple.right().isContainer() ? countChildren(tuple.left()) : 0);
+            setter.setChildCount(counts.totalCount());
+            setter.setChildContainerCount(counts.childContainerCount());
         };
     }
 
@@ -163,14 +165,6 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
                     log.error("Browsable object with objectId '{}' was not found.", context.getObjectId());
                     return new UpnpActionHandlerException(ErrorCode.ARGUMENT_VALUE_INVALID);
                 });
-    }
-
-    private static long countChildren(Path path) {
-        try (Stream<Path> dirItems = Files.list(path)) {
-            return dirItems.count();
-        } catch (IOException e) {
-            throw new PlayqdException(String.format("Failed counting container children at %s", path), e);
-        }
     }
 
     private static Tuple<Path, UpnpClass> pathToUpnpClass(Path path) {
@@ -217,7 +211,8 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
                 .objectId(object.objectId())
                 .parentObjectId(browseRequest.getObjectID())
                 .searchable(true)
-                .childCount(object.childrenCount().get())
+                .childCount(object.childCount().get())
+                .childContainerCount(object.childContainerCount())
                 .dc(DcTagValues.builder().title(object.dcTitle()).build())
                 .upnp(UpnpTagValues.builder().upnpClass(object.upnpClass()).build())
                 .build();

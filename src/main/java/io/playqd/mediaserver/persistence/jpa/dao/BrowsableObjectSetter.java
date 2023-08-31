@@ -6,7 +6,9 @@ public interface BrowsableObjectSetter {
 
     void setLocation(String location);
 
-    void setChildrenCountTransient(long count);
+    void setChildCount(long count);
+
+    void setChildContainerCount(long count);
 
     void setParentId(Long parentId);
 

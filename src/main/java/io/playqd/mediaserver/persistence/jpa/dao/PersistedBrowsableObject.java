@@ -11,5 +11,6 @@ public record PersistedBrowsableObject(long id,
                                        String dcTitle,
                                        Path location,
                                        UpnpClass upnpClass,
-                                       Supplier<Long> childrenCount) {
+                                       Supplier<Long> childCount,
+                                       long childContainerCount) {
 }

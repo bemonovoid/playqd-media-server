@@ -35,6 +35,7 @@ final class MusicLibraryGenreArtistsFinder implements BrowsableObjectFinder {
                 .objectId(buildArtistObjectId(artist))
                 .parentObjectId(browseRequest.getObjectID())
                 .childCount(artist.albumsCount())
+                .childContainerCount(artist.albumsCount())
                 .dc(buildDcTagValues(artist))
                 .upnp(buildUpnpTagValues(artist))
                 .build();
