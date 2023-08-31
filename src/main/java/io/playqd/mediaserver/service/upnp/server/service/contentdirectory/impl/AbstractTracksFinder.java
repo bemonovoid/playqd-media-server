@@ -3,13 +3,15 @@ package io.playqd.mediaserver.service.upnp.server.service.contentdirectory.impl;
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import io.playqd.mediaserver.model.AudioFile;
 import io.playqd.mediaserver.model.BrowsableObject;
-import io.playqd.mediaserver.model.FileUtils;
 import io.playqd.mediaserver.persistence.AudioFileDao;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowseResult;
 import io.playqd.mediaserver.service.metadata.AlbumArt;
-import io.playqd.mediaserver.service.metadata.AlbumArtService;
+import io.playqd.mediaserver.service.metadata.ImageService;
 import io.playqd.mediaserver.service.metadata.ImageSizeRequestParam;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.*;
+import io.playqd.mediaserver.util.FileUtils;
+import io.playqd.mediaserver.util.ImageUtils;
+import io.playqd.mediaserver.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jupnp.support.model.ProtocolInfo;
 import org.jupnp.util.MimeType;
@@ -26,14 +28,14 @@ import java.util.function.Supplier;
 abstract class AbstractTracksFinder extends BrowsableObjectBuilder implements BrowsableObjectFinder {
 
     protected final AudioFileDao audioFileDao;
-    protected final AlbumArtService albumArtService;
+    protected final ImageService imageService;
     protected final PlayqdProperties playqdProperties;
 
     AbstractTracksFinder(AudioFileDao audioFileDao,
-                         AlbumArtService albumArtService,
+                         ImageService imageService,
                          PlayqdProperties playqdProperties) {
         this.audioFileDao = audioFileDao;
-        this.albumArtService = albumArtService;
+        this.imageService = imageService;
         this.playqdProperties = playqdProperties;
     }
 
@@ -96,7 +98,7 @@ abstract class AbstractTracksFinder extends BrowsableObjectBuilder implements Br
 
     private BrowsableObject buildItemObject(BrowseContext context, AudioFile audioFile) {
         var objectId = buildItemObjectId(audioFile);
-        var mayBeAlbumArt = albumArtService.get(audioFile);
+        var mayBeAlbumArt = imageService.get(audioFile);
         return BrowsableObjectImpl.builder()
                 .objectId(objectId)
                 .parentObjectId(context.getObjectId())
@@ -156,7 +158,7 @@ abstract class AbstractTracksFinder extends BrowsableObjectBuilder implements Br
                 .bitRate(audioFile.bitRate())
                 .sampleFrequency(audioFile.sampleRate())
                 .size(Long.toString(audioFile.size()))
-                .duration(ResTag.formatDLNADuration(audioFile.preciseTrackLength()))
+                .duration(TimeUtils.durationToDlnaFormat(audioFile.preciseTrackLength()))
                 .build();
     }
 
@@ -168,24 +170,19 @@ abstract class AbstractTracksFinder extends BrowsableObjectBuilder implements Br
             var mimeType = MimeType.valueOf(albumArt.metadata().mimeType());
             return List.of(buildResTag(albumArt, mimeType));
         } catch (IllegalArgumentException e) {
-            log.error("Unexpected error when reading the mime type of album art with id: {}", albumArt.id().get(), e);
+            log.error("Unexpected error when reading the mime type of album art with id: {}", albumArt.id(), e);
             return Collections.emptyList();
         }
     }
 
     private static ResTag buildResTag(AlbumArt albumArt, MimeType mimeType) {
         return ResTag.builder()
-                .id(albumArt.id().get())
+                .id(albumArt.id())
                 .uri(albumArt.resources().getResizedOrOriginal(ImageSizeRequestParam.sm).uri())
-                .protocolInfo(buildImageProtocolInfo(albumArt, mimeType))
+                .protocolInfo(ImageUtils.buildImageDlnaProtocolInfo(mimeType))
                 .size(String.valueOf(albumArt.metadata().size()))
                 .image(true)
                 .build();
-    }
-
-    private static String buildImageProtocolInfo(AlbumArt albumArt, MimeType mimeType) {
-        return String.format("http-get:*:%s:DLNA.ORG_PN=JPEG_TN;DLNA.ORG_FLAGS=00900000000000000000000000000000",
-                mimeType.toStringNoParameters());
     }
 
 }

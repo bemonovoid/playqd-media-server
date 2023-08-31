@@ -5,6 +5,7 @@ import io.playqd.mediaserver.exception.PlayqdException;
 import io.playqd.mediaserver.model.*;
 import io.playqd.mediaserver.persistence.AudioFileDao;
 import io.playqd.mediaserver.service.upnp.server.UUIDV3Ids;
+import io.playqd.mediaserver.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j

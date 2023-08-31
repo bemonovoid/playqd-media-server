@@ -1,6 +1,6 @@
 package io.playqd.mediaserver.persistence.jpa.entity;
 
-import io.playqd.mediaserver.api.rest.controller.RestControllerApiBasePath;
+import io.playqd.mediaserver.api.rest.controller.RestApiResources;
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import jakarta.persistence.PostLoad;
 import org.springframework.beans.factory.ObjectFactory;
@@ -16,7 +16,7 @@ class AudioFileEntityEventListener {
     @PostLoad
     public void afterLoad(AudioFileJpaEntity entity) {
         var hostAddress = objectFactory.getObject().buildHostAddress();
-        var uri = String.format("http://%s%s/%s", hostAddress, RestControllerApiBasePath.AUDIO_STREAM, entity.getId());
+        var uri = String.format("http://%s%s/%s", hostAddress, RestApiResources.AUDIO_STREAM, entity.getId());
         entity.withAudioFilesStreamUri(uri);
     }
 }

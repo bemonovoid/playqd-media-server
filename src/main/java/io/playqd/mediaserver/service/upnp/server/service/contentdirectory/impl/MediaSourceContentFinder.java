@@ -1,24 +1,26 @@
 package io.playqd.mediaserver.service.upnp.server.service.contentdirectory.impl;
 
 import io.playqd.mediaserver.api.soap.data.Browse;
+import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import io.playqd.mediaserver.exception.PlayqdException;
 import io.playqd.mediaserver.model.AudioFile;
 import io.playqd.mediaserver.model.BrowsableObject;
-import io.playqd.mediaserver.model.FileUtils;
-import io.playqd.mediaserver.model.SupportedAudioFiles;
+import io.playqd.mediaserver.model.Tuple;
 import io.playqd.mediaserver.persistence.AudioFileDao;
 import io.playqd.mediaserver.persistence.BrowsableObjectDao;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowsableObjectSetter;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowseResult;
 import io.playqd.mediaserver.persistence.jpa.dao.PersistedBrowsableObject;
+import io.playqd.mediaserver.service.upnp.server.service.UpnpActionHandlerException;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.*;
+import io.playqd.mediaserver.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jupnp.model.types.ErrorCode;
 import org.jupnp.support.model.ProtocolInfo;
 import org.jupnp.util.MimeType;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,30 +37,50 @@ import java.util.stream.Stream;
 @Component
 final class MediaSourceContentFinder implements BrowsableObjectFinder {
 
+    private final String hostAddress;
     private final AudioFileDao audioFileDao;
     private final BrowsableObjectDao browsableObjectDao;
 
-    MediaSourceContentFinder(AudioFileDao audioFileDao, BrowsableObjectDao browsableObjectDao) {
+    MediaSourceContentFinder(AudioFileDao audioFileDao,
+                             PlayqdProperties playqdProperties,
+                             BrowsableObjectDao browsableObjectDao) {
         this.audioFileDao = audioFileDao;
         this.browsableObjectDao = browsableObjectDao;
+        this.hostAddress = playqdProperties.buildHostAddress();
     }
 
     @Override
     public BrowseResult find(BrowseContext context) {
-        var parent = browsableObjectDao.getOneByObjectId(context.getRequest().getObjectID());
-        if (!Files.isDirectory(parent.location())) {
-            // This shouldn't really happen, because the renderers must not browse a file, unless the object type was
-            // mistakenly set to container type
-            throw new PlayqdException("Browsing a file is illegal.");
+        var parentObject = getParent(context);
+
+        checkBrowsingValidContainerObject(parentObject);
+
+        // Prepare children object if the parentObject has not been visited yet
+        if (!browsableObjectDao.hasChildren(parentObject.id())) {
+            int createdObjectsCount = createChildrenObjects(parentObject);
+            log.info("Created {} children objects for parent object with id = {} and objectId = {})",
+                    createdObjectsCount, parentObject.id(), parentObject.objectId());
+        } else {
+            log.info("Children objects were previously created, proceeding to query children objects.");
         }
-        // Prepare children object if the parent has not been visited yet
-        if (!browsableObjectDao.hasChildren(parent.id())) {
-            buildChildrenObjects(parent);
-        }
-        return queryChildrenInternal(parent.id(), context.getRequest());
+        return queryChildrenObjects(parentObject.id(), context.getRequest());
     }
 
-    private BrowseResult queryChildrenInternal(long parentId, Browse browseRequest) {
+    private int createChildrenObjects(PersistedBrowsableObject parent) {
+        try (Stream<Path> dirs = Files.list(parent.location())) { //TODO check if exists
+            var objectSetters = dirs
+                    .map(MediaSourceContentFinder::pathToUpnpClass)
+                    .filter(tuple -> UpnpClass.item != tuple.right())
+                    .map(this::toBrowsableObjectSetter)
+                    .collect(Collectors.toList());
+            browsableObjectDao.save(parent, objectSetters);
+            return objectSetters.size();
+        } catch (IOException e) {
+            throw new PlayqdException(e);
+        }
+    }
+
+    private BrowseResult queryChildrenObjects(long parentId, Browse browseRequest) {
         var startingIndex = browseRequest.getStartingIndex();
         var requestedCount = browseRequest.getRequestedCount();
         var totalCount = (int) browsableObjectDao.countChildren(parentId);
@@ -82,58 +104,65 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
     }
 
     private List<BrowsableObject> buildBrowsableObjects(Browse browseRequest, List<PersistedBrowsableObject> objects) {
-        Map<Boolean, List<PersistedBrowsableObject>> dirsAndFiles = objects.stream()
-                .collect(Collectors.groupingBy(obj -> Files.isDirectory(obj.location())));
-        var dirs = dirsAndFiles.get(true);
-        var result = Collections.<BrowsableObject>emptyList();
-        if (!CollectionUtils.isEmpty(dirs)) {
-            var containerObjects = dirs.stream().map(obj -> buildContainerObject(browseRequest, obj)).toList();
-            result = new ArrayList<>(containerObjects);
-        }
-        var files = dirsAndFiles.get(false);
-        if (!CollectionUtils.isEmpty(files)) {
+        Map<UpnpClass, List<PersistedBrowsableObject>> upnpClassObjects =
+                objects.stream().collect(Collectors.groupingBy(PersistedBrowsableObject::upnpClass));
 
-            var locations = files.stream().map(obj -> obj.location().toString()).toList();
+        var containers = upnpClassObjects.getOrDefault(UpnpClass.storageFolder, Collections.emptyList())
+                .stream()
+                .map(obj -> buildContainerObject(browseRequest, obj))
+                .toList();
 
-            var audioFilesByLocation = audioFileDao.getAudioFilesByLocationIn(locations).stream()
-                    .collect(Collectors.toMap(AudioFile::path, v -> v));
+        var audioTrackItems = buildAudioTrackObjectItems(
+                browseRequest,
+                upnpClassObjects.getOrDefault(UpnpClass.audioItem, Collections.emptyList()));
 
-            var itemObjects = files.stream()
-                    .filter(obj -> audioFilesByLocation.containsKey(obj.location()))
-                    .map(obj -> buildItemObject(browseRequest, obj, audioFilesByLocation.get(obj.location())))
-                    .toList();
-            if (CollectionUtils.isEmpty(result)) {
-                return new ArrayList<>(itemObjects);
-            }
-            result.addAll(itemObjects);
-        }
+        var imageItems = upnpClassObjects.getOrDefault(UpnpClass.image, Collections.emptyList()).stream()
+                .map(obj -> buildImageObjectItem(browseRequest, obj))
+                .toList();
+
+//        var textItems = upnpClassObjects.getOrDefault(UpnpClass.text, Collections.emptyList()).stream()
+//                .map(obj -> buildImageObjectItem(browseRequest, obj))
+//                .toList();
+
+        var result = new ArrayList<BrowsableObject>(containers.size() + audioTrackItems.size() + imageItems.size());
+
+        result.addAll(containers);
+        result.addAll(audioTrackItems);
+        result.addAll(imageItems);
+
         return result;
     }
 
-    private void buildChildrenObjects(PersistedBrowsableObject parent) {
-        try (Stream<Path> dirs = Files.list(parent.location())) { //TODO check if exists
-            var childrenSetters = dirs
-                    .filter(path -> {
-                        if (Files.isDirectory(path)) {
-                            return true;
-                        }
-                        return SupportedAudioFiles.isSupportedAudioFile(path);
-                    })
-                    .map(this::createBrowsableObjectSetter)
-                    .collect(Collectors.toList());
-            browsableObjectDao.save(parent, childrenSetters);
-        } catch (IOException e) {
-            throw new PlayqdException(e);
+    private List<BrowsableObject> buildAudioTrackObjectItems(Browse browseRequest,
+                                                             List<PersistedBrowsableObject> persistedObjects) {
+        if (persistedObjects.isEmpty()) {
+            return Collections.emptyList();
         }
+        var locationToObjectMap = persistedObjects.stream()
+                .collect(Collectors.toMap(obj -> obj.location().toString(), obj -> obj));
+
+        return audioFileDao.getAudioFilesByLocationIn(locationToObjectMap.keySet()).stream()
+                .filter(audioFile -> locationToObjectMap.containsKey(audioFile.location()))
+                .map(audioFile -> buildAudioTrackObjectItem(
+                        browseRequest, audioFile, locationToObjectMap.get(audioFile.location())))
+                .toList();
     }
 
-    private Consumer<BrowsableObjectSetter> createBrowsableObjectSetter(Path path) {
-        var isDirectory = Files.isDirectory(path);
+    private Consumer<BrowsableObjectSetter> toBrowsableObjectSetter(Tuple<Path, UpnpClass> tuple) {
         return setter -> {
-            setter.setDcTitle(resolveDcTitle(path, isDirectory));
-            setter.setLocation(path.toString());
-            setter.setChildrenCountTransient(isDirectory ? countChildren(path) : 0);
+            setter.setDcTitle(resolveDcTitle(tuple.left(), tuple.right()));
+            setter.setLocation(tuple.left().toString());
+            setter.setUpnpClass(tuple.right());
+            setter.setChildrenCountTransient(tuple.right().isContainer() ? countChildren(tuple.left()) : 0);
         };
+    }
+
+    private PersistedBrowsableObject getParent(BrowseContext context) {
+        return browsableObjectDao.getOneByObjectId(context.getObjectId())
+                .orElseThrow(() -> {
+                    log.error("Browsable object with objectId '{}' was not found.", context.getObjectId());
+                    return new UpnpActionHandlerException(ErrorCode.ARGUMENT_VALUE_INVALID);
+                });
     }
 
     private static long countChildren(Path path) {
@@ -144,12 +173,43 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
         }
     }
 
-    private static String resolveDcTitle(Path path, boolean isDirectory) {
-        var fileName = path.getFileName().toString();
-        if (isDirectory) {
-            return fileName;
+    private static Tuple<Path, UpnpClass> pathToUpnpClass(Path path) {
+        if (Files.isDirectory(path)) {
+            return Tuple.from(path, UpnpClass.storageFolder);
         }
-        return FileUtils.getFileNameWithoutExtension(fileName);
+        var fileExtension = FileUtils.getFileExtension(path.toString());
+        if (SupportedAudioFiles.isSupportedAudioFile(fileExtension)) {
+            return Tuple.from(path, UpnpClass.audioItem);
+        }
+        if (SupportedImageFiles.isSupportedImageFile(fileExtension)) {
+            return Tuple.from(path, UpnpClass.image);
+        }
+//        if (SupportedTextFiles.isSupportedTextFile(fileExtension)) {
+//            return Tuple.from(path, UpnpClass.text);
+//        }
+        return Tuple.from(path, UpnpClass.item);
+    }
+
+    private static void checkBrowsingValidContainerObject(PersistedBrowsableObject browsableObject) {
+        if (browsableObject.upnpClass().isItem()) {
+            // This shouldn't really happen, because the renderers must not browse a file, unless the object type was
+            // mistakenly set to container type
+            log.error("Browsing {} file {} is illegal. ", browsableObject.upnpClass(), browsableObject.location());
+            throw new UpnpActionHandlerException(ErrorCode.ARGUMENT_VALUE_INVALID);
+        }
+        if (!Files.exists(browsableObject.location())) {
+            log.error("Browsable object (id={}, objectId={}) does not exist at location: {}",
+                    browsableObject.id(), browsableObject.objectId(), browsableObject.location());
+            throw new UpnpActionHandlerException(ErrorCode.ARGUMENT_VALUE_INVALID);
+        }
+    }
+
+    private static String resolveDcTitle(Path path, UpnpClass upnpClass) {
+        var fileName = path.getFileName().toString();
+        if (UpnpClass.audioItem == upnpClass) {
+            return FileUtils.getFileNameWithoutExtension(fileName);
+        }
+        return fileName;
     }
 
     private static BrowsableObject buildContainerObject(Browse browseRequest, PersistedBrowsableObject object) {
@@ -158,68 +218,62 @@ final class MediaSourceContentFinder implements BrowsableObjectFinder {
                 .parentObjectId(browseRequest.getObjectID())
                 .searchable(true)
                 .childCount(object.childrenCount().get())
-                .dc(buildDcTagValues(object))
-                .upnp(buildUpnpTagValues(object))
+                .dc(DcTagValues.builder().title(object.dcTitle()).build())
+                .upnp(UpnpTagValues.builder().upnpClass(object.upnpClass()).build())
                 .build();
     }
 
-    private static BrowsableObject buildItemObject(Browse browseRequest,
-                                                   PersistedBrowsableObject object,
-                                                   AudioFile audioFile) {
+    private static BrowsableObject buildAudioTrackObjectItem(Browse browseRequest,
+                                                             AudioFile audioFile,
+                                                             PersistedBrowsableObject object) {
         return BrowsableObjectImpl.builder()
                 .objectId(object.objectId())
                 .parentObjectId(browseRequest.getObjectID())
-                .dc(buildDcTagValues(object, audioFile))
-                .upnp(buildUpnpTagValues(object, audioFile))
-                .resources(buildResources(object, audioFile))
+                .dc(DcTagValues.builder()
+                        .title(object.dcTitle())
+                        .creator(audioFile.artistName())
+                        .build())
+                .upnp(UpnpTagValues.builder()
+                        .artist(audioFile.artistName())
+                        .album(audioFile.albumName())
+                        .genre(audioFile.genre())
+                        .originalTrackNumber(audioFile.trackNumber())
+                        .upnpClass(object.upnpClass())
+                        .playbackCount(audioFile.playbackCount())
+                        .lastPlaybackTime(AudioFile.getLastPlaybackTimeFormatted(audioFile).orElse(null))
+                        .build())
+                .resources(List.of(
+                        ResTag.builder()
+                                .id(Long.toString(audioFile.id()))
+                                .uri(audioFile.getAudioStreamUri())
+                                .protocolInfo(new ProtocolInfo(MimeType.valueOf(audioFile.mimeType())).toString())
+                                .bitsPerSample(Integer.toString(audioFile.bitsPerSample()))
+                                .bitRate(audioFile.bitRate())
+                                .sampleFrequency(audioFile.sampleRate())
+                                .size(Long.toString(audioFile.size()))
+                                .duration(TimeUtils.durationToDlnaFormat(audioFile.preciseTrackLength()))
+                                .build()))
                 .build();
     }
 
-    private static DcTagValues buildDcTagValues(PersistedBrowsableObject object) {
-        return buildDcTagValues(object, null);
-    }
-
-    private static DcTagValues buildDcTagValues(PersistedBrowsableObject object, AudioFile audioFile) {
-        var builder = DcTagValues.builder();
-        if (audioFile != null) {
-            builder = builder.creator(audioFile.artistName());
-        }
-        return builder
-                .title(object.dcTitle())
+    private BrowsableObject buildImageObjectItem(Browse browseRequest, PersistedBrowsableObject object) {
+        var path = object.location();
+        return BrowsableObjectImpl.builder()
+                .objectId(object.objectId())
+                .parentObjectId(browseRequest.getObjectID())
+                .dc(DcTagValues.builder().title(object.dcTitle()).build())
+                .upnp(UpnpTagValues.builder().upnpClass(object.upnpClass()).build())
+                .resources(List.of(
+                        ResTag.builder()
+                                .id(Long.toString(object.id()))
+                                .uri(ImageUtils.createBrowsableObjectImageResourceUri(hostAddress, object.objectId()))
+                                .protocolInfo(
+                                        ImageUtils.buildImageDlnaProtocolInfo(
+                                                MimeType.valueOf(FileUtils.detectMimeType(path))))
+                                .size(String.valueOf(FileUtils.getFileSize(path)))
+                                .image(true)
+                                .build()))
                 .build();
-    }
-
-    private static UpnpTagValues buildUpnpTagValues(PersistedBrowsableObject object) {
-        return buildUpnpTagValues(object, null);
-    }
-
-    private static UpnpTagValues buildUpnpTagValues(PersistedBrowsableObject object, AudioFile audioFile) {
-        var builder = UpnpTagValues.builder();
-        if (audioFile == null) {
-            return builder.upnpClass(UpnpClass.storageFolder).build();
-        }
-        return builder
-                .artist(audioFile.artistName())
-                .album(audioFile.albumName())
-                .genre(audioFile.genre())
-                .originalTrackNumber(audioFile.trackNumber())
-                .upnpClass(UpnpClass.musicTrack)
-                .playbackCount(audioFile.playbackCount())
-                .lastPlaybackTime(AudioFile.getLastPlaybackTimeFormatted(audioFile).orElse(null))
-                .build();
-    }
-
-    private static List<ResTag> buildResources(PersistedBrowsableObject object, AudioFile audioFile) {
-        return List.of(ResTag.builder()
-                .id(Long.toString(audioFile.id()))
-                .uri(audioFile.getAudioStreamUri())
-                .protocolInfo(new ProtocolInfo(MimeType.valueOf(audioFile.mimeType())).toString())
-                .bitsPerSample(Integer.toString(audioFile.bitsPerSample()))
-                .bitRate(audioFile.bitRate())
-                .sampleFrequency(audioFile.sampleRate())
-                .size(Long.toString(audioFile.size()))
-                .duration(ResTag.formatDLNADuration(audioFile.preciseTrackLength()))
-                .build());
     }
 
 }

@@ -3,7 +3,7 @@ package io.playqd.mediaserver.service.upnp.server.service.contentdirectory.impl;
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import io.playqd.mediaserver.model.AudioFile;
 import io.playqd.mediaserver.persistence.AudioFileDao;
-import io.playqd.mediaserver.service.metadata.AlbumArtService;
+import io.playqd.mediaserver.service.metadata.ImageService;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.BrowseContext;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.ObjectIdPattern;
 import org.springframework.data.domain.Page;
@@ -11,15 +11,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 final class MusicLibraryArtistTracksFinder extends AbstractTracksFinder {
 
     MusicLibraryArtistTracksFinder(AudioFileDao audioFileDao,
-                                   AlbumArtService albumArtService,
+                                   ImageService imageService,
                                    PlayqdProperties playqdProperties) {
-        super(audioFileDao, albumArtService, playqdProperties);
+        super(audioFileDao, imageService, playqdProperties);
     }
 
     @Override

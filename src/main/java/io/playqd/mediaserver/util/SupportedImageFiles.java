@@ -1,5 +1,7 @@
-package io.playqd.mediaserver.model;
+package io.playqd.mediaserver.util;
 
+import io.playqd.mediaserver.model.AudioFile;
+import io.playqd.mediaserver.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
@@ -25,7 +27,11 @@ public class SupportedImageFiles {
     }
 
     public static boolean isSupportedImageFile(Path path) {
-        return SUPPORTED_IMAGE_EXTENSIONS.contains(FileUtils.getFileExtension(path.toString()));
+        return isSupportedImageFile(FileUtils.getFileExtension(path.toString()));
+    }
+
+    public static boolean isSupportedImageFile(String fileExtension) {
+        return SUPPORTED_IMAGE_EXTENSIONS.contains(fileExtension);
     }
 
 }

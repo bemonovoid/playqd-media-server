@@ -73,6 +73,7 @@ final class MediaSourcesFinder implements BrowsableObjectFinder {
         return setter -> {
             setter.setDcTitle(mediaSourceName);
             setter.setLocation(path.toString());
+            setter.setUpnpClass(UpnpClass.storageFolder);
             setter.setChildrenCountTransient(countChildren(path));
         };
     }

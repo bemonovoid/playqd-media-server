@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public interface BrowsableObjectDao {
@@ -16,7 +17,7 @@ public interface BrowsableObjectDao {
 
     PersistedBrowsableObject getOne(long id);
 
-    PersistedBrowsableObject getOneByObjectId(String objectId);
+    Optional<PersistedBrowsableObject> getOneByObjectId(String objectId);
 
     List<PersistedBrowsableObject> getRoot();
 

@@ -1,10 +1,9 @@
 package io.playqd.mediaserver.service.metadata;
 
-import io.playqd.mediaserver.model.FileUtils;
 import io.playqd.mediaserver.exception.AudioMetadataReadException;
 import io.playqd.mediaserver.persistence.jpa.entity.AudioFileJpaEntity;
 import io.playqd.mediaserver.persistence.jpa.entity.AuditableEntity;
-import io.playqd.mediaserver.util.MimeTypeUtil;
+import io.playqd.mediaserver.util.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,7 +29,7 @@ public abstract class CommonFileAttributesReader implements FileAttributesReader
             params.put(AudioFileJpaEntity.COL_NAME, fileNameAndExtension.left());
             params.put(AudioFileJpaEntity.COL_LOCATION, path.toString());
             params.put(AudioFileJpaEntity.COL_EXTENSION, fileNameAndExtension.right());
-            params.put(AudioFileJpaEntity.COL_MIME_TYPE, MimeTypeUtil.detect(path));
+            params.put(AudioFileJpaEntity.COL_MIME_TYPE, FileUtils.detectMimeType(path));
             params.put(AudioFileJpaEntity.COL_FILE_LAST_SCANNED_DATE, Instant.now());
             params.put(AudioFileJpaEntity.COL_FILE_LAST_MODIFIED_DATE, Instant.ofEpochMilli(file.lastModified()));
 

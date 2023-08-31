@@ -1,6 +1,7 @@
 package io.playqd.mediaserver.persistence.jpa.entity;
 
 import io.playqd.mediaserver.persistence.jpa.dao.BrowsableObjectSetter;
+import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.UpnpClass;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,20 +22,29 @@ public class BrowsableObjectEntity extends PersistableAuditableEntity implements
     static final String TABLE_NAME = "upnp_browsable_object";
 
     private static final String COL_OBJECT_ID = "object_id";
+    private static final String COL_TITLE = "title";
+    private static final String COL_LOCATION = "location";
+    private static final String COL_UPNP_CLASS = "upnp_class";
+    private static final String COL_PARENT_ID = "parent_id";
+    private static final String COL_CHILDREN_COUNT_TRANSIENT = "children_count_transient";
 
     @Column(name = COL_OBJECT_ID, nullable = false)
     private String objectId;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = COL_TITLE, nullable = false)
     private String dcTitle;
 
-    @Column(nullable = false)
+    @Column(name = COL_LOCATION, nullable = false)
     private String location;
 
-    @Column(name = "children_count_transient")
+    @Column(name = COL_UPNP_CLASS, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UpnpClass upnpClass;
+
+    @Column(name = COL_CHILDREN_COUNT_TRANSIENT)
     private long childrenCountTransient;
 
-    @Column(name = "parent_id", insertable=false, updatable=false)
+    @Column(name = COL_PARENT_ID, insertable=false, updatable=false)
     private Long parentId;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Component
@@ -43,8 +44,8 @@ class JpaBrowsableObjectDao implements BrowsableObjectDao {
 
     @Override
     @Transactional(readOnly = true)
-    public PersistedBrowsableObject getOneByObjectId(String objectId) {
-        return fromEntity(repository.getByObjectId(objectId));
+    public Optional<PersistedBrowsableObject> getOneByObjectId(String objectId) {
+        return repository.findByObjectId(objectId).map(JpaBrowsableObjectDao::fromEntity);
     }
 
     @Override
@@ -104,6 +105,7 @@ class JpaBrowsableObjectDao implements BrowsableObjectDao {
                 entity.getObjectId(),
                 entity.getDcTitle(),
                 Paths.get(entity.getLocation()),
+                entity.getUpnpClass(),
                 entity::getChildCount);
     }
 

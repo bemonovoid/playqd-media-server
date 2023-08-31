@@ -1,6 +1,6 @@
 package io.playqd.mediaserver.api.rest.controller;
 
-import io.playqd.mediaserver.service.metadata.AlbumArtService;
+import io.playqd.mediaserver.service.metadata.ImageService;
 import io.playqd.mediaserver.service.metadata.ImageSizeRequestParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.CacheControl;
@@ -12,19 +12,19 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
-@RequestMapping(RestControllerApiBasePath.ALBUM_ART)
-class AlbumArtController {
+@RequestMapping(RestApiResources.IMAGE)
+class ImageStreamController {
 
-    private final AlbumArtService albumArtService;
+    private final ImageService imageService;
 
-    AlbumArtController(AlbumArtService albumArtService) {
-        this.albumArtService = albumArtService;
+    ImageStreamController(ImageService imageService) {
+        this.imageService = imageService;
     }
 
-    @GetMapping(path = "/{albumId}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+    @GetMapping(path = "/album/{albumId}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     ResponseEntity<byte[]> get (@PathVariable String albumId,
                                 @RequestParam(required = false, name = "size") ImageSizeRequestParam size) {
-        var mayBeAlbumArt = albumArtService.get(albumId);
+        var mayBeAlbumArt = imageService.get(albumId);
         return mayBeAlbumArt
                 .map(albumArt -> ResponseEntity
                         .ok()
@@ -36,17 +36,32 @@ class AlbumArtController {
     }
 
     @GetMapping(
-            path = "/{albumId}/{albumFolderImageFileName}",
+            path = "/album/{albumId}/{albumFolderImageFileName}",
             produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     ResponseEntity<byte[]> get (@PathVariable String albumId,
                                 @PathVariable String albumFolderImageFileName,
                                 @RequestParam(required = false, name = "size") ImageSizeRequestParam size) {
-        var mayBeAlbumArt = albumArtService.get(albumId, albumFolderImageFileName);
+        var mayBeAlbumArt = imageService.get(albumId, albumFolderImageFileName);
         return mayBeAlbumArt
                 .map(albumArt -> ResponseEntity
                         .ok()
                         .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
                         .body(albumArt.resources().getResizedOrOriginal(size).byteArray()))
+                .orElseGet(() -> ResponseEntity
+                        .notFound()
+                        .build());
+    }
+
+    @GetMapping(
+            path = "/browsable/{objectId}",
+            produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+    ResponseEntity<byte[]> getBrowsableObjectImage(@PathVariable String objectId) {
+        var mayBeAlbumArt = imageService.getFromBrowsableObject(objectId);
+        return mayBeAlbumArt
+                .map(albumArt -> ResponseEntity
+                        .ok()
+                        .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+                        .body(albumArt))
                 .orElseGet(() -> ResponseEntity
                         .notFound()
                         .build());

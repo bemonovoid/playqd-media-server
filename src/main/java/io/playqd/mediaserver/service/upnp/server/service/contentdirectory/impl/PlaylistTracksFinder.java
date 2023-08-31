@@ -3,7 +3,7 @@ package io.playqd.mediaserver.service.upnp.server.service.contentdirectory.impl;
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import io.playqd.mediaserver.model.AudioFile;
 import io.playqd.mediaserver.persistence.AudioFileDao;
-import io.playqd.mediaserver.service.metadata.AlbumArtService;
+import io.playqd.mediaserver.service.metadata.ImageService;
 import io.playqd.mediaserver.service.playlist.PlaylistService;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.BrowseContext;
 import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.ObjectIdPattern;
@@ -20,10 +20,10 @@ class PlaylistTracksFinder extends AbstractTracksFinder {
     private final PlaylistService playlistService;
 
     PlaylistTracksFinder(AudioFileDao audioFileDao,
-                         AlbumArtService albumArtService,
+                         ImageService imageService,
                          PlayqdProperties playqdProperties,
                          PlaylistService playlistService) {
-        super(audioFileDao, albumArtService, playqdProperties);
+        super(audioFileDao, imageService, playqdProperties);
         this.playlistService = playlistService;
     }
 
