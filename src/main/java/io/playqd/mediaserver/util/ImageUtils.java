@@ -1,6 +1,10 @@
 package io.playqd.mediaserver.util;
 
+import io.playqd.mediaserver.api.rest.controller.RestApiResources;
+import io.playqd.mediaserver.service.metadata.ImageSizeRequestParam;
 import lombok.extern.slf4j.Slf4j;
+import org.jupnp.util.MimeType;
+import org.springframework.util.StringUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -8,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 @Slf4j
 public abstract class ImageUtils {
@@ -41,6 +46,62 @@ public abstract class ImageUtils {
             log.error("Resize image failed.", e);
             return new byte[]{};
         }
+    }
+
+    public static String buildImageDlnaProtocolInfo(MimeType mimeType) {
+        return String.format("http-get:*:%s:DLNA.ORG_PN=JPEG_TN;DLNA.ORG_FLAGS=00900000000000000000000000000000",
+                mimeType.toStringNoParameters());
+    }
+
+    public static String createAlbumArtResourceUri(String hostname, String albumId) {
+        return createAlbumArtResourceUri(hostname, albumId, null, null);
+    }
+
+    public static String createAlbumArtResourceUri(String hostname, String albumId, String albumFolderImageFilename) {
+        return createAlbumArtResourceUri(hostname, albumId, albumFolderImageFilename, null);
+    }
+
+    public static String createAlbumArtResourceUri(String hostname,
+                                                   String albumId,
+                                                   ImageSizeRequestParam imageSizeName) {
+        return createAlbumArtResourceUri(hostname, albumId, null, imageSizeName);
+    }
+
+    public static String createAlbumArtResourceUri(String hostname,
+                                                   String albumId,
+                                                   String albumFolderImageFilename,
+                                                   ImageSizeRequestParam imageSizeName) {
+        var imageResourcePath = String.format("http://%s%s/%s", hostname, RestApiResources.ALBUM_ART_IMAGE, albumId);
+        if (StringUtils.hasText(albumFolderImageFilename) || imageSizeName != null) {
+            imageResourcePath = imageResourcePath + "?";
+        }
+        var params = new ArrayList<String>(2);
+        if (StringUtils.hasText(albumFolderImageFilename)) {
+            params.add("name=" + albumFolderImageFilename);
+        }
+        if (imageSizeName != null) {
+            params.add("size=" + imageSizeName.name());
+        }
+        if (!params.isEmpty()) {
+            imageResourcePath = imageResourcePath + String.join("&", params);
+        }
+        return imageResourcePath;
+    }
+
+    public static String createBrowsableObjectImageResourceUri(String hostname, String objectId) {
+        return String.format("http://%s%s/%s", hostname, RestApiResources.BROWSABLE_IMAGE, objectId);
+    }
+
+    public static String createImageResourceUri(String hostname, String imageId) {
+        return createImageResourceUri(hostname, imageId, null);
+    }
+
+    public static String createImageResourceUri(String hostname, String imageId, ImageSizeRequestParam imageSizeName) {
+        if (imageSizeName != null) {
+            return String.format("http://%s%s/%s?size=%s",
+                    hostname, RestApiResources.IMAGE, imageId, imageSizeName.name());
+        }
+        return String.format("http://%s%s/%s", hostname, RestApiResources.IMAGE, imageId);
     }
 
 }

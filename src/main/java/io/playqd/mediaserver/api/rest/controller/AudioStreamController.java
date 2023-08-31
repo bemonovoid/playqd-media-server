@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping(RestControllerApiBasePath.AUDIO_STREAM)
+@RequestMapping(RestApiResources.AUDIO_STREAM)
 class AudioStreamController {
 
     private final AudioFileDao audioFileDao;

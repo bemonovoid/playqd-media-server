@@ -1,4 +1,4 @@
-package io.playqd.mediaserver.model;
+package io.playqd.mediaserver.util;
 
 import org.jaudiotagger.audio.SupportedFileFormat;
 

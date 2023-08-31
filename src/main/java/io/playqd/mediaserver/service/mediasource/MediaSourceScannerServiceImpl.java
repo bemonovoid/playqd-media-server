@@ -1,8 +1,8 @@
 package io.playqd.mediaserver.service.mediasource;
 
 import io.playqd.mediaserver.exception.MediaSourceScannerException;
-import io.playqd.mediaserver.model.SupportedAudioFiles;
-import io.playqd.mediaserver.model.TimeUtils;
+import io.playqd.mediaserver.util.SupportedAudioFiles;
+import io.playqd.mediaserver.util.TimeUtils;
 import io.playqd.mediaserver.persistence.AudioFileDao;
 import io.playqd.mediaserver.persistence.MediaSourceDao;
 import io.playqd.mediaserver.service.metadata.AudioFileAttributes;

@@ -1,5 +1,7 @@
-package io.playqd.mediaserver.model;
+package io.playqd.mediaserver.util;
 
+import io.playqd.mediaserver.model.AudioFile;
+import io.playqd.mediaserver.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;

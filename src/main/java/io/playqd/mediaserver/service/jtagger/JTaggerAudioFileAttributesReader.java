@@ -1,7 +1,7 @@
 package io.playqd.mediaserver.service.jtagger;
 
 import io.playqd.mediaserver.exception.AudioMetadataReadException;
-import io.playqd.mediaserver.model.FileUtils;
+import io.playqd.mediaserver.util.FileUtils;
 import io.playqd.mediaserver.persistence.jpa.entity.AudioFileJpaEntity;
 import io.playqd.mediaserver.service.metadata.CommonFileAttributesReader;
 import io.playqd.mediaserver.service.upnp.server.UUIDV3Ids;

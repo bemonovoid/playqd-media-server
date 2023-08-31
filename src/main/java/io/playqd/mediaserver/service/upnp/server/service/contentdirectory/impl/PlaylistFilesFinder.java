@@ -2,7 +2,7 @@ package io.playqd.mediaserver.service.upnp.server.service.contentdirectory.impl;
 
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import io.playqd.mediaserver.model.BrowsableObject;
-import io.playqd.mediaserver.model.FileUtils;
+import io.playqd.mediaserver.util.FileUtils;
 import io.playqd.mediaserver.model.M3u8PlaylistFile;
 import io.playqd.mediaserver.model.PlaylistFile;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowseResult;

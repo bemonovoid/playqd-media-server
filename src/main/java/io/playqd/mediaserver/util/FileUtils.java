@@ -1,10 +1,11 @@
-package io.playqd.mediaserver.model;
+package io.playqd.mediaserver.util;
 
+import io.playqd.mediaserver.model.Tuple;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.Tika;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -13,6 +14,8 @@ import java.time.ZoneOffset;
 
 @Slf4j
 public abstract class FileUtils {
+
+    private final static Tika TIKA_INSTANCE = new Tika();
 
     public static String getFileExtension(File file) {
         return getFileExtension(file.getName());
@@ -56,16 +59,20 @@ public abstract class FileUtils {
     }
 
     public static String detectMimeType(Path path) {
-        var mimeType = URLConnection.guessContentTypeFromName(path.toString());
-        if (mimeType == null) {
-            try {
-                return Files.probeContentType(path);
-            } catch (IOException e) {
-                log.warn("Was unable to detect file's mime type with 'Files.probeContentType()'. {}", e.getMessage());
-                return null;
-            }
+        try {
+            return TIKA_INSTANCE.detect(path);
+        } catch (IOException e) {
+            log.error("Failed to detect mime type for {}. ", path, e);
+            return "";
         }
-        return null;
+    }
+
+    public static String detectMimeType(byte[] data) {
+        return TIKA_INSTANCE.detect(data);
+    }
+
+    public static String detectMimeType(String fileLocation) {
+        return TIKA_INSTANCE.detect(fileLocation);
     }
 
     public static String getDirDisplaySIze(File file) {

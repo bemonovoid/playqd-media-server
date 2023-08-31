@@ -1,8 +1,8 @@
 package io.playqd.mediaserver.service.mediasource;
 
 import io.playqd.mediaserver.exception.CounterException;
-import io.playqd.mediaserver.model.FileUtils;
-import io.playqd.mediaserver.model.SupportedAudioFiles;
+import io.playqd.mediaserver.util.FileUtils;
+import io.playqd.mediaserver.util.SupportedAudioFiles;
 import io.playqd.mediaserver.persistence.MediaSourceDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
