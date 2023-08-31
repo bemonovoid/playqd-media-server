@@ -106,7 +106,8 @@ class JpaBrowsableObjectDao implements BrowsableObjectDao {
                 entity.getDcTitle(),
                 Paths.get(entity.getLocation()),
                 entity.getUpnpClass(),
-                entity::getChildCount);
+                entity::getChildCountAvailable,
+                entity.getChildContainerCount());
     }
 
 }

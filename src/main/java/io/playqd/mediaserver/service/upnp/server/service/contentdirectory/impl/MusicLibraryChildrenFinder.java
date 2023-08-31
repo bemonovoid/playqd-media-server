@@ -28,10 +28,12 @@ final class MusicLibraryChildrenFinder implements BrowsableObjectFinder {
     }
 
     private BrowsableObject buildContainer(Browse browseRequest, SystemContainerName container) {
+        var count = countChildren(container);
         return BrowsableObjectImpl.builder()
                 .objectId(container.getObjectId())
                 .parentObjectId(browseRequest.getObjectID())
-                .childCount(countChildren(container))
+                .childCount(count)
+                .childContainerCount(countChildContainers(count, container))
                 .sortOrderId(container.getOrderId())
                 .dc(buildDcTagValues(container))
                 .upnp(buildUpnpTagValues(container))
@@ -43,7 +45,7 @@ final class MusicLibraryChildrenFinder implements BrowsableObjectFinder {
             case ARTIST_ALBUM, ARTIST_TRACK -> {
                 return audioFileDao.countArtists();
             }
-            case GENRE_ALBUM -> {
+            case GENRE_ARTIST, GENRE_ALBUM -> {
                 return audioFileDao.countGenres();
             }
             case TRACKS_MOST_PLAYED, TRACKS_RECENTLY_PLAYED -> {
@@ -51,6 +53,17 @@ final class MusicLibraryChildrenFinder implements BrowsableObjectFinder {
             }
             case TRACKS_RECENTLY_ADDED -> {
                 return audioFileDao.countRecentlyAdded();
+            }
+            default -> {
+                return 0;
+            }
+        }
+    }
+
+    private static long countChildContainers(long childCount, SystemContainerName container) {
+        switch (container) {
+            case ARTIST_ALBUM, ARTIST_TRACK, GENRE_ARTIST, GENRE_ALBUM -> {
+                return childCount;
             }
             default -> {
                 return 0;

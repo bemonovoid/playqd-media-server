@@ -1,7 +1,7 @@
 <#ftl output_format="XML">
 <#list browseResponse.objects as obj>
     <#if obj.upnp.upnpClass.isContainer()>
-        <container id="${obj.objectId}" childCount="${obj.childCount}" parentID="${obj.parentObjectId}" searchable="${obj.searchable?then(1, 0)}" restricted="${obj.restricted?then(1, 0)}">
+        <container id="${obj.objectId}" childCount="${obj.childCount}" childContainerCount="${obj.childContainerCount}" parentID="${obj.parentObjectId}" searchable="${obj.searchable?then(1, 0)}" restricted="${obj.restricted?then(1, 0)}">
             <dc:title>${obj.dc.title}</dc:title>
             <upnp:class>${obj.upnp.upnpClass.getClassValue()}</upnp:class>
     <#if obj.resources??>
@@ -11,7 +11,7 @@
     </#if>
         </container>
     <#else>
-        <#if obj.upnp.upnpClass.name() == 'photo'>
+        <#if obj.upnp.upnpClass.name() == 'image'>
             <item id="${obj.objectId}" parentID="${obj.parentObjectId}" restricted="${obj.restricted?then(1, 0)}">
                 <dc:title>${obj.dc.title}</dc:title>
                 <#list obj.resources as res>

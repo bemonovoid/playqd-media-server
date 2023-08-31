@@ -14,6 +14,7 @@ import java.util.List;
 public class BrowsableObjectImpl implements BrowsableObject {
 
     private final long childCount;
+    private final long childContainerCount;
     private final String objectId;
     private final String parentObjectId;
     private final int sortOrderId;

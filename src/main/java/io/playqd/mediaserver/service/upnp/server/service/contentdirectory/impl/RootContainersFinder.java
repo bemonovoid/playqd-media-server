@@ -24,10 +24,12 @@ final class RootContainersFinder implements BrowsableObjectFinder {
     }
 
     private BrowsableObject buildFoldersRoot() {
+        var count = mediaSourceDao.getAll().size();
         return BrowsableObjectImpl.builder()
                 .objectId(SystemContainerName.ROOT_FOLDERS.getObjectId())
                 .parentObjectId("-1")
-                .childCount(mediaSourceDao.getAll().size())
+                .childCount(count)
+                .childContainerCount(count)
                 .sortOrderId(SystemContainerName.ROOT_FOLDERS.getOrderId())
                 .dc(buildDcTagValues(SystemContainerName.ROOT_FOLDERS))
                 .upnp(buildUpnpTagValues())
@@ -40,6 +42,7 @@ final class RootContainersFinder implements BrowsableObjectFinder {
                 .parentObjectId("-1")
                 .sortOrderId(SystemContainerName.ROOT_MUSIC_LIBRARY.getOrderId())
                 .childCount(SystemContainerName.getMusicLibraryChildren().size())
+                .childContainerCount(SystemContainerName.getMusicLibraryChildren().size())
                 .dc(buildDcTagValues(SystemContainerName.ROOT_MUSIC_LIBRARY))
                 .upnp(buildUpnpTagValues())
                 .build();
