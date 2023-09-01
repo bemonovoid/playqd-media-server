@@ -23,7 +23,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'jacoco'
+//    id 'jacoco'
     id 'org.springframework.boot' version "${springBootVersion}"
     id "io.spring.dependency-management" version "${springDependencyVersion}"
 }
@@ -117,24 +117,22 @@ bootJar {
     mainClass = 'io.playqd.mediaserver.Application'
 }
 
-jacoco {
-    toolVersion = "0.8.9"
-//    reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
-}
+//jacoco {
+//    toolVersion = "0.8.9"
+//}
 
 test {
     useJUnitPlatform()
 //    finalizedBy jacocoTestReport
 }
 
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-        csv.required = false
-//        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
-    }
-}
+//jacocoTestReport {
+//    dependsOn test
+//    reports {
+//        xml.required = true
+//        csv.required = false
+//    }
+//}
 
 sourceSets {
     main {
