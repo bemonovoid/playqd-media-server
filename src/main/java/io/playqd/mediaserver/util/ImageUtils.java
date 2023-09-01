@@ -27,7 +27,7 @@ public abstract class ImageUtils {
             }
 
             var imageType = ((image.getType() == 0) ? BufferedImage.TYPE_INT_ARGB : image.getType());
-            var resizedImage = new BufferedImage(150, 150, imageType);
+            var resizedImage = new BufferedImage(newWidth, newHeight, imageType);
 
             Graphics2D g2d = resizedImage.createGraphics();
 
@@ -36,7 +36,7 @@ public abstract class ImageUtils {
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 
-            g2d.drawImage(image, 0, 0, 150, 150, null);
+            g2d.drawImage(image, 0, 0, newWidth, newHeight, null);
             g2d.dispose();
 
             var out = new ByteArrayOutputStream();
