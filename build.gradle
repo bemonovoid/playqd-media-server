@@ -6,7 +6,7 @@ buildscript {
         tikaVersion = '2.8.0'
         fasterXmlVersion = "2.15.2"
         jAudioTaggerVersion = '3.0.1'
-        mysqlConnectorVersion = '8.0.32'
+        mysqlConnectorVersion = '8.0.33'
         ehcacheVersion = '3.10.8'
         springDependencyVersion = '1.1.0'
         springCloudVersion = '2022.0.3'
@@ -14,10 +14,11 @@ buildscript {
         springDocVersion = '2.1.0'
         wsdl4jVersion = '1.6.3'
         jUpnpVersion = '2.7.1'
+        micrometerPrometheusVersion = '1.11.3'
 
-        jUnit5PlatformVersion = '1.8.2'
-        jUnit5EngineVersion = '5.8.2'
-        mockitoVersion = '4.0.0'
+        jUnit5PlatformVersion = '1.10.0'
+        jUnit5EngineVersion = '5.10.0'
+        mockitoVersion = '5.5.0'
     }
 }
 
@@ -88,6 +89,8 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-freemarker:${springBootVersion}"
 
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
+    implementation "io.micrometer:micrometer-registry-prometheus:${micrometerPrometheusVersion}"
+
 
 //    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client"
 

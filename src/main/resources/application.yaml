@@ -34,19 +34,6 @@ spring:
     baseline-on-migrate: true
     enabled: false
 
-management:
-  endpoint:
-    caches:
-      enabled: true
-    metrics:
-      enabled: true
-    features:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: [ "info", "health", "caches", "metrics", "features"]
-
 playqd:
   workingDir: "path to working dir"
   logging:
@@ -64,6 +51,22 @@ playqd:
     streamServer:
       host: ""
       port: ${server.port}
+
+management:
+  endpoint:
+    caches:
+      enabled: true
+    metrics:
+      enabled: true
+    features:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: [ "info", "health", "caches", "metrics", "features", "prometheus" ]
+
 
 logging:
   level:
