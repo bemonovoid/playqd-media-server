@@ -30,7 +30,7 @@ class PlaylistsDirectoryInitializer implements ApplicationRunner {
         var workingDir = playqdProperties.getWorkingDirOrDefault();
         try {
             if (!Files.isDirectory(workingDir)) {
-                throw new IllegalStateException("Working dir is not a directory.");
+                throw new IllegalStateException(String.format("Working dir is not a directory. %s", workingDir));
             }
             var playlistsDir = playqdProperties.getPlaylistsDir();
             if (!Files.exists(playlistsDir)) {
