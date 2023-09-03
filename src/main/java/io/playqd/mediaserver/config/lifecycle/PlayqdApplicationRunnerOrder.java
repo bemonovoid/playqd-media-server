@@ -1,4 +1,4 @@
-package io.playqd.mediaserver.config.runner;
+package io.playqd.mediaserver.config.lifecycle;
 
 class PlayqdApplicationRunnerOrder {
 
@@ -7,5 +7,5 @@ class PlayqdApplicationRunnerOrder {
 
     static final int PLAYLISTS_DIRECTORY_INITIALIZER = 200;
 
-    static final int STATE_VARIABLES_LOGGER = 300;
+    static final int UPNP_STATE_VARIABLES_LOGGER = 300;
 }

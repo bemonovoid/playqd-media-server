@@ -49,3 +49,4 @@ gradle-app.setting
 /.gitattributes
 /docker/
 /src/main/resources/application-prod.yaml
+/application.pid

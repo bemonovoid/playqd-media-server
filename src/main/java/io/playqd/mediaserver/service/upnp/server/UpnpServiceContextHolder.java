@@ -35,7 +35,7 @@ public class UpnpServiceContextHolder {
         try {
             this.playqdUpnpService.shutdown();
         } catch (Exception e) {
-            log.warn("Error shutting down UpnpServer", e);
+            log.warn("Error shutting down UpnpServer. {}", e.getMessage());
         }
     }
 

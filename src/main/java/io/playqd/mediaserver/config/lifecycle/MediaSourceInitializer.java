@@ -1,4 +1,4 @@
-package io.playqd.mediaserver.config.runner;
+package io.playqd.mediaserver.config.lifecycle;
 
 import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
 import io.playqd.mediaserver.service.mediasource.MediaSourceScannerService;

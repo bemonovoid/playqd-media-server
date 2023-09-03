@@ -1,4 +1,4 @@
-package io.playqd.mediaserver.config.runner;
+package io.playqd.mediaserver.config.lifecycle;
 
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import lombok.extern.slf4j.Slf4j;

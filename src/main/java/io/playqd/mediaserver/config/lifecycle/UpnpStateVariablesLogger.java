@@ -1,4 +1,4 @@
-package io.playqd.mediaserver.config.runner;
+package io.playqd.mediaserver.config.lifecycle;
 
 import io.playqd.mediaserver.service.upnp.server.service.StateVariableContextHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +11,12 @@ import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Component
-@Order(PlayqdApplicationRunnerOrder.STATE_VARIABLES_LOGGER)
-class StateVariablesLogger implements ApplicationRunner {
+@Order(PlayqdApplicationRunnerOrder.UPNP_STATE_VARIABLES_LOGGER)
+class UpnpStateVariablesLogger implements ApplicationRunner {
 
     private final StateVariableContextHolder stateVariableContextHolder;
 
-    StateVariablesLogger(StateVariableContextHolder stateVariableContextHolder) {
+    UpnpStateVariablesLogger(StateVariableContextHolder stateVariableContextHolder) {
         this.stateVariableContextHolder = stateVariableContextHolder;
     }
 
