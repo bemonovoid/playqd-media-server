@@ -21,7 +21,7 @@ class MediaSourceInMemDao implements MediaSourceDao {
 
     MediaSourceInMemDao(PlayqdProperties playqdProperties) {
         var idGenerator = new AtomicLong(1);
-        this.mediaSources = playqdProperties.getMediaSources().stream()
+        this.mediaSources = playqdProperties.getMediaSources().values().stream()
                 .collect(Collectors.toMap(
                         config -> idGenerator.get(),
                         config -> new MediaSource(

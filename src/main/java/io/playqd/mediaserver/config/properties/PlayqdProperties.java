@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Validated
@@ -23,7 +24,7 @@ public class PlayqdProperties {
     private String workingDir;
 
     @NotEmpty
-    private List<MediaSourceProperties> mediaSources;
+    private Map<String, MediaSourceProperties> mediaSources;
 
     private PlayqdLoggingConfig logging;
 

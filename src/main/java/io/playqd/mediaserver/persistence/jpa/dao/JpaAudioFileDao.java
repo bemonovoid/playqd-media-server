@@ -186,7 +186,7 @@ class JpaAudioFileDao implements AudioFileDao {
     public void setNewLastRecentlyAddedDate(LocalDateTime lastRecentlyAddedDateTime) {
         var entity = audioFileAuditLogRepository.getOne().orElseGet(AudioFileSourceAuditLogJpaEntity::new);
         entity.setLastAddedDate(lastRecentlyAddedDateTime);
-        audioFileAuditLogRepository.saveAndFlush(entity);
+        audioFileAuditLogRepository.save(entity);
     }
 
     @Override

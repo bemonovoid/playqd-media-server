@@ -3,14 +3,14 @@ server:
 
 spring:
   application:
-    name: "${server.servlet.application-display-name}"
+    name: "playqd-media-server"
   cache:
     jcache:
       provider: "org.ehcache.jsr107.EhcacheCachingProvider"
 
   datasource:
     url: "jdbc:mysql://localhost:8306/db_name"
-    username: "username"
+    username: "root"
     password: "****"
   freemarker:
     enabled: true
@@ -35,21 +35,22 @@ spring:
     enabled: false
 
 playqd:
-  workingDir: "path to working dir"
+  mediaSources:
+    local:
+      name: "All music"
+      dir: "path_to_folder"
+      scanOnStart: true
+      ignoreDirs: [ ]
   logging:
     logSoapResponse: false
-  mediaSources:
-    - name: "Name"
-      dir: "path to dir"
-      scanOnStart: true
-      ignoreDirs: []
+  workingDir: "${user.home}/.playqd"
   upnp:
     action:
       browse:
         maxDisplayedRecentlyAdded: 100
         maxDisplayedRecentlyPlayed: 100
     streamServer:
-      host: ""
+      host: "192.168.1.122"
       port: ${server.port}
 
 management:
@@ -58,25 +59,28 @@ management:
       enabled: true
     metrics:
       enabled: true
-    features:
-      enabled: true
     prometheus:
+      enabled: true
+    shutdown:
       enabled: true
   endpoints:
     web:
       exposure:
-        include: [ "info", "health", "caches", "metrics", "features", "prometheus" ]
+        include: [ "info", "health", "caches", "metrics", "prometheus", "shutdown" ]
 
 
 logging:
   level:
+    org.jaudiotagger.audio: ERROR
+    org.jaudiotagger.tag: ERROR
+
     org.jupnp: WARN
     org.jupnp.transport: WARN
-    io.playqd: INFO
+
     org.springframework.jdbc.core.JdbcTemplate: INFO
     org.springframework.data: INFO
     org.springframework.web: INFO
     org.springframework.ws: INFO
-    io.playqd.mediaserver.api.soap.interceptor.PrettyPrintPayloadLoggingInterceptor: DEBUG
-    org.jaudiotagger.audio: ERROR
-    org.jaudiotagger.tag: ERROR
+
+    io.playqd: INFO
+    io.playqd.mediaserver.api.soap.interceptor.PrettyPrintPayloadLoggingInterceptor: INFO
