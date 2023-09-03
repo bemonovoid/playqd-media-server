@@ -1,0 +1,7 @@
+playqd:
+  mediaSources:
+    local:
+      name: "Music"
+      dir: "F:/Media/test_music"
+      scanOnStart: true
+      ignoreDirs: [ ]

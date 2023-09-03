@@ -20,6 +20,7 @@ buildscript {
         jUnit5PlatformVersion = '1.10.0'
         jUnit5EngineVersion = '5.10.0'
         mockitoVersion = '5.5.0'
+        h2Version = '2.2.222'
     }
 }
 
@@ -110,6 +111,10 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${jUnit5EngineVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${jUnit5EngineVersion}")
     testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    testImplementation "com.h2database:h2:${h2Version}"
+    testImplementation"org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }
 
 jar {
@@ -140,6 +145,10 @@ bootJar {
 //    }
 //}
 
+test {
+    useJUnitPlatform()
+}
+
 //jacocoTestReport {
 //    dependsOn test
 //    reports {
@@ -148,13 +157,13 @@ bootJar {
 //    }
 //}
 
-sourceSets {
-    main {
-        java {
-            srcDir 'src/main/java'
-        }
-    }
-}
+//sourceSets {
+//    main {
+//        java {
+//            srcDir 'src/main/java'
+//        }
+//    }
+//}
 
 tasks.register('genJaxb') {
     ext.sourcesDir = "${projectDir}/src/main/java"
