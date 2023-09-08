@@ -10,13 +10,9 @@ spring:
     url: "jdbc:h2:mem:playqd_test_db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false"
     username: "sa"
     password: "sa"
-#    url: "jdbc:hsqldb:mem:playqd_test_db;sql.syntax_mys=true"
   jpa:
     hibernate:
       ddl-auto: create
-
-#      hbm2ddl:
-#        auto: create
     properties:
       hibernate:
         dialect: "org.hibernate.dialect.H2Dialect"
