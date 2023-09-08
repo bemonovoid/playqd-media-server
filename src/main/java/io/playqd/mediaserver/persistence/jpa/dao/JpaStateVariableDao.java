@@ -13,11 +13,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-class StateVariableDaoImpl implements StateVariableDao {
+class JpaStateVariableDao implements StateVariableDao {
 
     private final StateVariableRepository repository;
 
-    StateVariableDaoImpl(StateVariableRepository repository) {
+    JpaStateVariableDao(StateVariableRepository repository) {
         this.repository = repository;
     }
 

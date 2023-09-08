@@ -112,7 +112,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${jUnit5EngineVersion}")
     testImplementation("org.mockito:mockito-core:${mockitoVersion}")
 
-    // https://mvnrepository.com/artifact/com.h2database/h2
     testImplementation "com.h2database:h2:${h2Version}"
     testImplementation"org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }
