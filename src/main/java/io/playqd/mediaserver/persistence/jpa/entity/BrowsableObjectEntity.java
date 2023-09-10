@@ -1,7 +1,7 @@
 package io.playqd.mediaserver.persistence.jpa.entity;
 
 import io.playqd.mediaserver.persistence.jpa.dao.BrowsableObjectSetter;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.UpnpClass;
+import io.playqd.mediaserver.service.upnp.service.contentdirectory.UpnpClass;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

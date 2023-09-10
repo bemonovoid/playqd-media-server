@@ -1,8 +1,8 @@
 package io.playqd.mediaserver.model;
 
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.DcTagValues;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.ResTag;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.UpnpTagValues;
+import io.playqd.mediaserver.service.upnp.service.contentdirectory.DcTagValues;
+import io.playqd.mediaserver.service.upnp.service.contentdirectory.ResTag;
+import io.playqd.mediaserver.service.upnp.service.contentdirectory.UpnpTagValues;
 
 import java.util.Collections;
 import java.util.List;

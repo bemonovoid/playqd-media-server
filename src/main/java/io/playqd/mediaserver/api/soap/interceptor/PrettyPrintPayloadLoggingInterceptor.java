@@ -1,6 +1,6 @@
 package io.playqd.mediaserver.api.soap.interceptor;
 
-import io.playqd.mediaserver.config.PlayqdLoggingConfig;
+import io.playqd.mediaserver.config.properties.PlayqdLoggingProperties;
 import org.springframework.ws.soap.server.endpoint.interceptor.SoapEnvelopeLoggingInterceptor;
 import org.springframework.xml.transform.TransformerHelper;
 
@@ -12,7 +12,7 @@ public class PrettyPrintPayloadLoggingInterceptor extends SoapEnvelopeLoggingInt
 
     private final Transformer transformer;
 
-    public PrettyPrintPayloadLoggingInterceptor(PlayqdLoggingConfig logging) {
+    public PrettyPrintPayloadLoggingInterceptor(PlayqdLoggingProperties logging) {
         this.transformer = createIndentingTransformer();
         setLogResponse(logging.isLogSoapResponse());
     }

@@ -1,7 +1,7 @@
 package io.playqd.mediaserver.persistence.jpa.dao;
 
 import io.playqd.mediaserver.model.BrowsableObject;
-import io.playqd.mediaserver.service.upnp.server.service.ActionResponse;
+import io.playqd.mediaserver.service.upnp.service.ActionResponse;
 
 import java.util.Collections;
 import java.util.List;

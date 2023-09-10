@@ -4,15 +4,12 @@ import io.playqd.mediaserver.config.cache.CacheNames;
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import io.playqd.mediaserver.model.AudioFile;
 import io.playqd.mediaserver.persistence.AudioFileDao;
-import io.playqd.mediaserver.persistence.BrowsableObjectDao;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.UpnpClass;
 import io.playqd.mediaserver.util.FileUtils;
 import io.playqd.mediaserver.util.ImageUtils;
 import io.playqd.mediaserver.util.SupportedImageFiles;
 import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,21 +19,16 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Slf4j
-@Service
-class ImageServiceImpl implements ImageService {
+public class ImageServiceImpl implements ImageService {
 
     private final String hostAddress;
     private final AudioFileDao audioFileDao;
-    private final BrowsableObjectDao browsableObjectDao;
 
     private static final int IMAGE_WIDTH_SMALL = 250;
     private static final int IMAGE_HEIGHT_SMALL = 250;
 
-    public ImageServiceImpl(AudioFileDao audioFileDao,
-                            PlayqdProperties playqdProperties,
-                            BrowsableObjectDao browsableObjectDao) {
+    public ImageServiceImpl(PlayqdProperties playqdProperties, AudioFileDao audioFileDao) {
         this.audioFileDao = audioFileDao;
-        this.browsableObjectDao = browsableObjectDao;
         this.hostAddress = playqdProperties.buildHostAddress();
     }
 
@@ -66,21 +58,6 @@ class ImageServiceImpl implements ImageService {
     @Cacheable(cacheNames = CacheNames.ALBUM_ART_BY_ALBUM_ID, key = "#audioFile.albumId", unless="#result == null")
     public Optional<AlbumArt> get(AudioFile audioFile) {
         return getEmbedded(audioFile).or(() -> getFromAlbumFolder(audioFile));
-    }
-
-    @Override
-    public Optional<byte[]> getFromBrowsableObject(String objectId) {
-        return browsableObjectDao.getOneByObjectId(objectId)
-                .filter(obj -> UpnpClass.image == obj.upnpClass())
-                .map(obj -> {
-                    try {
-                        return Files.readAllBytes(obj.location());
-                    } catch (IOException e) {
-                        log.error("Failed to read image content.", e);
-                        return new byte[0];
-                    }
-                })
-                .filter(bytes -> bytes.length > 0);
     }
 
     private Optional<AlbumArt> getEmbedded(AudioFile audioFile) {

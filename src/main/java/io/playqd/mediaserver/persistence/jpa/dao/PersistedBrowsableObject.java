@@ -1,6 +1,6 @@
 package io.playqd.mediaserver.persistence.jpa.dao;
 
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.UpnpClass;
+import io.playqd.mediaserver.service.upnp.service.contentdirectory.UpnpClass;
 
 import java.nio.file.Path;
 import java.util.function.Supplier;

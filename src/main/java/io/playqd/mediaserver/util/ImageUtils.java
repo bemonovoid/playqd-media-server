@@ -89,7 +89,7 @@ public abstract class ImageUtils {
     }
 
     public static String createBrowsableObjectImageResourceUri(String hostname, String objectId) {
-        return String.format("http://%s%s/%s", hostname, RestApiResources.BROWSABLE_IMAGE, objectId);
+        return String.format("http://%s%s/%s", hostname, RestApiResources.BROWSABLE_OBJECT_IMAGE, objectId);
     }
 
     public static String createImageResourceUri(String hostname, String imageId) {

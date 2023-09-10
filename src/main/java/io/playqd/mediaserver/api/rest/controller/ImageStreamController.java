@@ -52,19 +52,4 @@ class ImageStreamController {
                         .build());
     }
 
-    @GetMapping(
-            path = "/browsable/{objectId}",
-            produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
-    ResponseEntity<byte[]> getBrowsableObjectImage(@PathVariable String objectId) {
-        var mayBeAlbumArt = imageService.getFromBrowsableObject(objectId);
-        return mayBeAlbumArt
-                .map(albumArt -> ResponseEntity
-                        .ok()
-                        .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
-                        .body(albumArt))
-                .orElseGet(() -> ResponseEntity
-                        .notFound()
-                        .build());
-    }
-
 }

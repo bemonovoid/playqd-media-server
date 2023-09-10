@@ -9,4 +9,7 @@ public interface MediaSourceDao {
     MediaSource get(long id);
 
     List<MediaSource> getAll();
+
+    MediaSource create(MediaSource mediaSource);
+
 }

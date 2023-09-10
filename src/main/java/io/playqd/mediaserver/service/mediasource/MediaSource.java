@@ -9,10 +9,14 @@ public record MediaSource(long id,
                           String name,
                           Path path,
                           boolean autoScanOnStartUp,
+                          boolean watchable,
                           @JsonInclude(JsonInclude.Include.NON_EMPTY)
                           Set<String> ignoredDirectories) {
 
-    public String description() {
-        return String.format("id=%s;name=%s;path=%s", id(), name(), path());
-    }
+  @Override
+  public String toString() {
+    return String.format("id=%s; name=%s; path = %s; ignored location(s): %s; watchable: %s; autoScanOnStartUp: %s;",
+        id(), name(), path(), ignoredDirectories(), watchable(), autoScanOnStartUp());
+  }
+
 }

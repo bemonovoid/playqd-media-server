@@ -1,7 +1,7 @@
 package io.playqd.mediaserver.persistence;
 
-import io.playqd.mediaserver.service.upnp.server.service.StateVariable;
-import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
+import io.playqd.mediaserver.service.upnp.service.StateVariable;
+import io.playqd.mediaserver.service.upnp.service.StateVariableName;
 
 import java.io.Serializable;
 import java.util.Optional;

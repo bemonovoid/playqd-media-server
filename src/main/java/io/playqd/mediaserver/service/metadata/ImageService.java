@@ -11,6 +11,4 @@ public interface ImageService {
     Optional<AlbumArt> get(AudioFile audioFile);
 
     Optional<AlbumArt> get(String albumId, String albumFolderImageFileName);
-
-    Optional<byte[]> getFromBrowsableObject(String objectId);
 }

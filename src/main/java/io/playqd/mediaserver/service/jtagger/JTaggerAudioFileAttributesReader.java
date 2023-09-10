@@ -1,17 +1,16 @@
 package io.playqd.mediaserver.service.jtagger;
 
 import io.playqd.mediaserver.exception.AudioMetadataReadException;
-import io.playqd.mediaserver.util.FileUtils;
 import io.playqd.mediaserver.persistence.jpa.entity.AudioFileJpaEntity;
 import io.playqd.mediaserver.service.metadata.CommonFileAttributesReader;
 import io.playqd.mediaserver.service.upnp.server.UUIDV3Ids;
+import io.playqd.mediaserver.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.images.Artwork;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.nio.file.Path;
@@ -23,8 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 @Slf4j
-@Component
-class JTaggerAudioFileAttributesReader extends CommonFileAttributesReader {
+public class JTaggerAudioFileAttributesReader extends CommonFileAttributesReader {
 
     private static final String UNKNOWN_ARTIST = "unknown_artist";
     private static final String UNKNOWN_ALBUM = "unknown_album";

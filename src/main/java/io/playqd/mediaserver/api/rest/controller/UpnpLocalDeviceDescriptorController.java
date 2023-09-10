@@ -1,5 +1,6 @@
 package io.playqd.mediaserver.api.rest.controller;
 
+import io.playqd.mediaserver.config.upnp.ConditionalOnUpnpEnabled;
 import io.playqd.mediaserver.service.upnp.server.PlayqdDeviceNamespace;
 import io.playqd.mediaserver.service.upnp.server.UpnpServiceContextHolder;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +24,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/dev")
+@ConditionalOnUpnpEnabled
 class UpnpLocalDeviceDescriptorController {
 
     private static final Namespace ROOT_DEVICE_NAMESPACE = new PlayqdDeviceNamespace();

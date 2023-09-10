@@ -8,6 +8,8 @@ public interface MediaSourceService {
 
     MediaSource get(long sourceId);
 
+    MediaSource create(MediaSource mediaSource);
+
     MediaSourceContentInfo info(long sourceId);
 
 }

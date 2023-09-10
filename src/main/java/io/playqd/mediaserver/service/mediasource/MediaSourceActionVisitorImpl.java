@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 @Component
 class MediaSourceActionVisitorImpl implements MediaSourceActionVisitor {
 
-    private final MediaSourceScannerService mediaSourceScannerService;
+    private final MediaSourceScanner mediaSourceScanner;
 
-    public MediaSourceActionVisitorImpl(MediaSourceScannerService mediaSourceScannerService) {
-        this.mediaSourceScannerService = mediaSourceScannerService;
+    public MediaSourceActionVisitorImpl(MediaSourceScanner mediaSourceScanner) {
+        this.mediaSourceScanner = mediaSourceScanner;
     }
 
     @Override
@@ -19,6 +19,6 @@ class MediaSourceActionVisitorImpl implements MediaSourceActionVisitor {
     @Override
     public void visit(StartScanAction action) {
         visit((MediaSourceAction) action);
-        mediaSourceScannerService.scan(action.getId());
+        mediaSourceScanner.scan(action.getId());
     }
 }

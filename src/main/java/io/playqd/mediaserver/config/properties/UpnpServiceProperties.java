@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter(AccessLevel.PACKAGE)
 public class UpnpServiceProperties {
 
+    private boolean enabled;
+
     private UpnpActionProperties action = new UpnpActionProperties();
 
     private UpnpStreamServerProperties streamServer;

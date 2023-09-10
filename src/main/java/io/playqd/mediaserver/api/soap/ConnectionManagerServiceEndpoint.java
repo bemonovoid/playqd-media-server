@@ -1,5 +1,6 @@
 package io.playqd.mediaserver.api.soap;
 
+import io.playqd.mediaserver.config.upnp.ConditionalOnUpnpEnabled;
 import io.playqd.mediaserver.service.upnp.server.PlayqdUpnpService;
 import io.playqd.mediaserver.service.upnp.server.UpnpServiceContextHolder;
 import io.playqd.mediaserver.templates.TemplateService;
@@ -17,12 +18,14 @@ import java.io.StringReader;
 import java.util.Map;
 
 @Endpoint
+@ConditionalOnUpnpEnabled
 class ConnectionManagerServiceEndpoint {
 
     private final PlayqdUpnpService upnpService;
     private final TemplateService templateService;
 
-    ConnectionManagerServiceEndpoint(TemplateService templateService, UpnpServiceContextHolder upnpServiceContextHolder) {
+    ConnectionManagerServiceEndpoint(TemplateService templateService,
+                                     UpnpServiceContextHolder upnpServiceContextHolder) {
         this.templateService = templateService;
         this.upnpService = upnpServiceContextHolder.getServiceInstance();
     }

@@ -1,6 +1,6 @@
 package io.playqd.mediaserver.persistence.jpa.entity;
 
-import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
+import io.playqd.mediaserver.service.upnp.service.StateVariableName;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

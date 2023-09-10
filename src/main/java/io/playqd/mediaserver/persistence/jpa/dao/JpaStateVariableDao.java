@@ -3,21 +3,19 @@ package io.playqd.mediaserver.persistence.jpa.dao;
 import io.playqd.mediaserver.persistence.StateVariableDao;
 import io.playqd.mediaserver.persistence.jpa.entity.StateVariableJpaEntity;
 import io.playqd.mediaserver.persistence.jpa.repository.StateVariableRepository;
-import io.playqd.mediaserver.service.upnp.server.service.StateVariable;
-import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
-import org.springframework.stereotype.Component;
+import io.playqd.mediaserver.service.upnp.service.StateVariable;
+import io.playqd.mediaserver.service.upnp.service.StateVariableName;
 
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component
-class JpaStateVariableDao implements StateVariableDao {
+public class JpaStateVariableDao implements StateVariableDao {
 
     private final StateVariableRepository repository;
 
-    JpaStateVariableDao(StateVariableRepository repository) {
+    public JpaStateVariableDao(StateVariableRepository repository) {
         this.repository = repository;
     }
 

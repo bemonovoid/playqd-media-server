@@ -6,7 +6,6 @@ import io.playqd.mediaserver.persistence.jpa.repository.BrowsableObjectRepositor
 import io.playqd.mediaserver.service.upnp.server.UUIDV3Ids;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -16,12 +15,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-@Component
-class JpaBrowsableObjectDao implements BrowsableObjectDao {
+public class JpaBrowsableObjectDao implements BrowsableObjectDao {
 
     private final BrowsableObjectRepository repository;
 
-    JpaBrowsableObjectDao(BrowsableObjectRepository repository) {
+    public JpaBrowsableObjectDao(BrowsableObjectRepository repository) {
         this.repository = repository;
     }
 

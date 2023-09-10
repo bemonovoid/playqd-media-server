@@ -15,14 +15,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service
-class MediaSourceFileSystemWatcherService implements MediaSourceWatcherService {
+public class MediaSourceFileSystemWatcherService implements MediaSourceWatcherService {
 
     private final ApplicationEventPublisher eventPublisher;
 
     private final Map<Long, WatchService> watchers = Collections.synchronizedMap(new HashMap<>());
 
-    MediaSourceFileSystemWatcherService(ApplicationEventPublisher eventPublisher) {
+    public MediaSourceFileSystemWatcherService(ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 

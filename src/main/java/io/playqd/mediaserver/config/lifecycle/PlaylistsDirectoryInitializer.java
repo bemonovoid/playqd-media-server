@@ -11,13 +11,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Slf4j
-@Component
-@Order(PlayqdApplicationRunnerOrder.PLAYLISTS_DIRECTORY_INITIALIZER)
-class PlaylistsDirectoryInitializer implements ApplicationRunner {
+public class PlaylistsDirectoryInitializer implements ApplicationRunner {
 
     private final PlayqdProperties playqdProperties;
 
-    PlaylistsDirectoryInitializer(PlayqdProperties playqdProperties) {
+    public PlaylistsDirectoryInitializer(PlayqdProperties playqdProperties) {
         this.playqdProperties = playqdProperties;
     }
 

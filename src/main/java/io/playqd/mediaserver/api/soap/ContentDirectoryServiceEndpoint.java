@@ -1,13 +1,13 @@
 package io.playqd.mediaserver.api.soap;
 
+import io.playqd.mediaserver.config.upnp.ConditionalOnUpnpEnabled;
 import io.playqd.mediaserver.api.soap.data.Browse;
-import io.playqd.mediaserver.service.upnp.server.service.StateVariableName;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowseResult;
-import io.playqd.mediaserver.service.upnp.server.service.UpnpActionHandler;
-import io.playqd.mediaserver.service.upnp.server.service.UpnpActionHandlerException;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.BrowsableObjectValidations;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.BrowseContext;
-import io.playqd.mediaserver.service.upnp.server.service.StateVariableContextHolder;
+import io.playqd.mediaserver.service.upnp.service.UpnpActionHandler;
+import io.playqd.mediaserver.service.upnp.service.UpnpActionHandlerException;
+import io.playqd.mediaserver.service.upnp.service.contentdirectory.BrowsableObjectValidations;
+import io.playqd.mediaserver.service.upnp.service.contentdirectory.BrowseContext;
+import io.playqd.mediaserver.service.upnp.service.contentdirectory.SimpleActionContext;
 import io.playqd.mediaserver.templates.TemplateNames;
 import io.playqd.mediaserver.templates.TemplateService;
 import org.jupnp.model.types.ErrorCode;
@@ -23,26 +23,26 @@ import java.io.StringReader;
 import java.util.Map;
 
 @Endpoint
+@ConditionalOnUpnpEnabled
 class ContentDirectoryServiceEndpoint {
 
     private final TemplateService templateService;
-    private final StateVariableContextHolder stateVariableContextHolder;
     private final UpnpActionHandler<BrowseContext, BrowseResult> browseActionHandler;
+    private final UpnpActionHandler<SimpleActionContext, String> getSystemIdActionHandler;
 
     ContentDirectoryServiceEndpoint(TemplateService templateService,
-                                    StateVariableContextHolder stateVariableContextHolder,
-                                    UpnpActionHandler<BrowseContext, BrowseResult> browseActionHandler) {
+                                    UpnpActionHandler<BrowseContext, BrowseResult> browseActionHandler,
+                                    UpnpActionHandler<SimpleActionContext, String> getSystemIdActionHandler) {
         this.templateService = templateService;
         this.browseActionHandler = browseActionHandler;
-        this.stateVariableContextHolder = stateVariableContextHolder;
+        this.getSystemIdActionHandler = getSystemIdActionHandler;
     }
 
     @SoapAction("urn:schemas-upnp-org:service:ContentDirectory:1#GetSystemUpdateID")
     @ResponsePayload
     Source getSystemUpdateId(MessageContext request) {
-        var responseXml = templateService.processToString(
-                TemplateNames.SYSTEM_UPDATE_ID_RESPONSE,
-                stateVariableContextHolder.getOrThrow(StateVariableName.SYSTEM_UPDATE_ID));
+        var data = Map.<String, Object>of("systemUpdateId", getSystemIdActionHandler.handle(new SimpleActionContext()));
+        var responseXml = templateService.processToString(TemplateNames.SYSTEM_UPDATE_ID_RESPONSE, data);
         return new StreamSource(new StringReader(responseXml));
     }
 
@@ -109,6 +109,6 @@ class ContentDirectoryServiceEndpoint {
                 "objects", response.objects(),
                 "numberReturned", response.numberReturned(),
                 "totalMatches", response.totalMatches(),
-                "updateId", stateVariableContextHolder.getOrThrow(StateVariableName.SYSTEM_UPDATE_ID)));
+                "updateId", getSystemIdActionHandler.handle(null)));
     }
 }

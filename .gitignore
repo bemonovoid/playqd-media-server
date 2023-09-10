@@ -45,6 +45,7 @@ gradle-app.setting
 */build/
 /src/main/resources/application-dev.yaml
 /src/main/resources/application-home.yaml
+/src/main/resources/application-docker.yaml
 /src/main/resources/dev_working_dir/playlists/
 /.gitattributes
 /docker/

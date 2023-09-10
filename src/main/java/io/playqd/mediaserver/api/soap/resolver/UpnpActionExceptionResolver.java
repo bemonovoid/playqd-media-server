@@ -2,7 +2,7 @@ package io.playqd.mediaserver.api.soap.resolver;
 
 import io.playqd.mediaserver.api.soap.data.UpnpError;
 import io.playqd.mediaserver.exception.PlayqdException;
-import io.playqd.mediaserver.service.upnp.server.service.UpnpActionHandlerException;
+import io.playqd.mediaserver.service.upnp.service.UpnpActionHandlerException;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;

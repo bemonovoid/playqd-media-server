@@ -10,6 +10,7 @@ import io.playqd.mediaserver.persistence.jpa.entity.AudioFileSourceAuditLogJpaEn
 import io.playqd.mediaserver.persistence.jpa.entity.PersistableAuditableEntity;
 import io.playqd.mediaserver.persistence.jpa.repository.AudioFileRepository;
 import io.playqd.mediaserver.persistence.jpa.repository.AudioFileAuditLogRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,14 +29,14 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
-@Component
-class JpaAudioFileDao implements AudioFileDao {
+@Slf4j
+public class JpaAudioFileDao implements AudioFileDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final AudioFileRepository audioFileRepository;
     private final AudioFileAuditLogRepository audioFileAuditLogRepository;
 
-    JpaAudioFileDao(JdbcTemplate jdbcTemplate,
+    public JpaAudioFileDao(JdbcTemplate jdbcTemplate,
                     AudioFileRepository audioFileRepository,
                     AudioFileAuditLogRepository audioFileAuditLogRepository) {
         this.jdbcTemplate = jdbcTemplate;

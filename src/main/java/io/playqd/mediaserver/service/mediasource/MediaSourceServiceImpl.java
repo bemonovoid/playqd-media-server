@@ -1,11 +1,10 @@
 package io.playqd.mediaserver.service.mediasource;
 
 import io.playqd.mediaserver.exception.CounterException;
+import io.playqd.mediaserver.persistence.MediaSourceDao;
 import io.playqd.mediaserver.util.FileUtils;
 import io.playqd.mediaserver.util.SupportedAudioFiles;
-import io.playqd.mediaserver.persistence.MediaSourceDao;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,8 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-@Service
-class MediaSourceServiceImpl implements MediaSourceService {
+public class MediaSourceServiceImpl implements MediaSourceService {
 
     private final MediaSourceDao mediaSourceDao;
 
@@ -35,6 +33,11 @@ class MediaSourceServiceImpl implements MediaSourceService {
     @Override
     public List<MediaSource> getAll() {
         return mediaSourceDao.getAll();
+    }
+
+    @Override
+    public MediaSource create(MediaSource mediaSource) {
+        return mediaSourceDao.create(mediaSource);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package io.playqd.mediaserver.api.rest.controller;
 
+import io.playqd.mediaserver.config.upnp.ConditionalOnUpnpEnabled;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +16,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/dev")
+@ConditionalOnUpnpEnabled
 class UpnpLocalDeviceServiceEventCallbackController {
 
     private final Transformer transformer;

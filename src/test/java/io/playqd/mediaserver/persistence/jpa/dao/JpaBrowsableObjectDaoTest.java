@@ -1,28 +1,25 @@
 package io.playqd.mediaserver.persistence.jpa.dao;
 
+import io.playqd.mediaserver.commons.JpaDaoTest;
+import io.playqd.mediaserver.config.ApplicationConfiguration;
+import io.playqd.mediaserver.config.upnp.UpnpDaoContextConfiguration;
 import io.playqd.mediaserver.persistence.BrowsableObjectDao;
-import io.playqd.mediaserver.persistence.jpa.JpaDaoTest;
-import io.playqd.mediaserver.persistence.jpa.repository.BrowsableObjectRepository;
-import io.playqd.mediaserver.service.upnp.server.service.contentdirectory.UpnpClass;
+import io.playqd.mediaserver.service.upnp.service.contentdirectory.UpnpClass;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Import({ UpnpDaoContextConfiguration.class})
 class JpaBrowsableObjectDaoTest extends JpaDaoTest {
 
-  private final BrowsableObjectDao browsableObjectDao;
-
-  JpaBrowsableObjectDaoTest(@Autowired BrowsableObjectRepository browsableObjectRepository) {
-      this.browsableObjectDao = new JpaBrowsableObjectDao(browsableObjectRepository);
-  }
-
   @Test
-  void saveRootBrowsableObject() {
+  void saveRootBrowsableObject(@Autowired BrowsableObjectDao browsableObjectDao) {
     var browsableObject = browsableObjectDao.save(browsableObjectSetter -> {
       browsableObjectSetter.setDcTitle("title");
       browsableObjectSetter.setUpnpClass(UpnpClass.storageFolder);
@@ -35,7 +32,7 @@ class JpaBrowsableObjectDaoTest extends JpaDaoTest {
   }
 
   @Test
-  void saveWithoutLocationFails() {
+  void saveWithoutLocationFails(@Autowired BrowsableObjectDao browsableObjectDao) {
     var executable = (Executable) () -> browsableObjectDao.save(browsableObjectSetter -> {
       browsableObjectSetter.setDcTitle("title");
       browsableObjectSetter.setUpnpClass(UpnpClass.storageFolder);

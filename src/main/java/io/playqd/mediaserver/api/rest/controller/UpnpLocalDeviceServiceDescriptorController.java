@@ -1,5 +1,6 @@
 package io.playqd.mediaserver.api.rest.controller;
 
+import io.playqd.mediaserver.config.upnp.ConditionalOnUpnpEnabled;
 import io.playqd.mediaserver.service.upnp.server.UpnpServiceContextHolder;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/dev")
+@ConditionalOnUpnpEnabled
 class UpnpLocalDeviceServiceDescriptorController {
 
     private final UpnpService upnpService;

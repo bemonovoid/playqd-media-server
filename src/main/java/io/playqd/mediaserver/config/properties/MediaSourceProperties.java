@@ -21,6 +21,8 @@ public class MediaSourceProperties {
 
     private boolean scanOnStart;
 
+    private boolean watchable;
+
     private Set<String> ignoreDirs;
 
 }

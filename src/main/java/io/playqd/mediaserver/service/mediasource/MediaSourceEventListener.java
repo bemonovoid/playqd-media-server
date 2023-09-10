@@ -15,17 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 class MediaSourceEventListener {
 
     private final AudioFileDao audioFileDao;
-    private final MediaSourceScannerService mediaSourceScannerService;
+    private final MediaSourceScanner mediaSourceScanner;
 
     MediaSourceEventListener(AudioFileDao audioFileDao,
-                             MediaSourceScannerService mediaSourceScannerService) {
+                             MediaSourceScanner mediaSourceScanner) {
         this.audioFileDao = audioFileDao;
-        this.mediaSourceScannerService = mediaSourceScannerService;
+        this.mediaSourceScanner = mediaSourceScanner;
     }
 
     @EventListener(MediaSourceContentChangedEvent.class)
     public void handleMediaSourceContentChangedEvent(MediaSourceContentChangedEvent event) {
-        event.changedContentDirs().forEach(path -> mediaSourceScannerService.scan(event.mediaSource().id(), path));
+        event.changedContentDirs().forEach(path -> mediaSourceScanner.scan(event.mediaSource().id(), path));
     }
 
     @Async

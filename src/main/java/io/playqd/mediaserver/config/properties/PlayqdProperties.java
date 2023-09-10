@@ -1,6 +1,5 @@
 package io.playqd.mediaserver.config.properties;
 
-import io.playqd.mediaserver.config.PlayqdLoggingConfig;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,7 +24,7 @@ public class PlayqdProperties {
     @NotEmpty
     private Map<String, MediaSourceProperties> mediaSources;
 
-    private PlayqdLoggingConfig logging;
+    private PlayqdLoggingProperties logging;
 
     private UpnpServiceProperties upnp = new UpnpServiceProperties();
 

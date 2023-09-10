@@ -17,8 +17,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
-@Service
-class PlaylistServiceImpl implements PlaylistService {
+public class PlaylistServiceImpl implements PlaylistService {
 
     private static final Set<String> SUPPORTED_FORMATS = Set.of("m3u8");
 
