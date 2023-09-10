@@ -30,6 +30,7 @@ plugins {
     id 'org.springframework.boot' version "${springBootVersion}"
     id 'com.google.cloud.tools.jib' version "${jibPluginVersion}"
     id "io.spring.dependency-management" version "${springDependencyVersion}"
+    id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
 repositories {
@@ -123,6 +124,10 @@ jar {
 bootJar {
     archiveBaseName = 'playqd-media-server'
     mainClass = 'io.playqd.mediaserver.Application'
+}
+
+springBoot {
+    buildInfo()
 }
 
 jib {
