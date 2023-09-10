@@ -5,7 +5,7 @@ import io.playqd.mediaserver.service.upnp.service.StateVariableName;
 import io.playqd.mediaserver.service.upnp.service.UpnpActionHandler;
 import io.playqd.mediaserver.service.upnp.service.contentdirectory.SimpleActionContext;
 
-public class GetSystemIdActionHandler implements UpnpActionHandler<SimpleActionContext, String> {
+public class GetSystemIdActionHandler implements UpnpActionHandler<SimpleActionContext, Integer> {
 
   private final StateVariableContextHolder stateVariableContextHolder;
 
@@ -14,7 +14,7 @@ public class GetSystemIdActionHandler implements UpnpActionHandler<SimpleActionC
   }
 
   @Override
-  public String handle(SimpleActionContext context) {
+  public Integer handle(SimpleActionContext context) {
     return stateVariableContextHolder.getOrThrow(StateVariableName.SYSTEM_UPDATE_ID);
   }
 

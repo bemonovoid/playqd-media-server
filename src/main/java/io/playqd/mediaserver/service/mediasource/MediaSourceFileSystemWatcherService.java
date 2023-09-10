@@ -6,11 +6,23 @@ import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -102,9 +114,8 @@ public class MediaSourceFileSystemWatcherService implements MediaSourceWatcherSe
             } catch (ClosedWatchServiceException e) {
                 log.warn("The WatcherService is being closed, may be application is now exiting. {}", e.getMessage());
                 break;
-            } catch (InterruptedException x) {
-                log.error("Failed to establish watcher for mediaSourceId: {} in path: {}. Watcher will be closed",
-                        mediaSource.id(), watchable);
+            } catch (InterruptedException e1) {
+                log.error("Can't continue watching the path: {}. Watcher was interrupted.", watchable, e1);
                 continue;
             }
 
@@ -185,7 +196,7 @@ public class MediaSourceFileSystemWatcherService implements MediaSourceWatcherSe
             }
             watchService.close();
         } catch (ClosedWatchServiceException e) {
-            log.error("WatcherService for media source id: {} is already closed.", sourceId);
+            log.error("WatcherService for media source id: {} was already closed.", sourceId);
         } catch (IOException e) {
             log.error("Failed to gracefully stop WatcherService for media source id: {}. {}", sourceId, e.getMessage());
         }

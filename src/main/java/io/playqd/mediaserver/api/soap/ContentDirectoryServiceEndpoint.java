@@ -1,7 +1,7 @@
 package io.playqd.mediaserver.api.soap;
 
-import io.playqd.mediaserver.config.upnp.ConditionalOnUpnpEnabled;
 import io.playqd.mediaserver.api.soap.data.Browse;
+import io.playqd.mediaserver.config.upnp.ConditionalOnUpnpEnabled;
 import io.playqd.mediaserver.persistence.jpa.dao.BrowseResult;
 import io.playqd.mediaserver.service.upnp.service.UpnpActionHandler;
 import io.playqd.mediaserver.service.upnp.service.UpnpActionHandlerException;
@@ -28,11 +28,11 @@ class ContentDirectoryServiceEndpoint {
 
     private final TemplateService templateService;
     private final UpnpActionHandler<BrowseContext, BrowseResult> browseActionHandler;
-    private final UpnpActionHandler<SimpleActionContext, String> getSystemIdActionHandler;
+    private final UpnpActionHandler<SimpleActionContext, Integer> getSystemIdActionHandler;
 
     ContentDirectoryServiceEndpoint(TemplateService templateService,
                                     UpnpActionHandler<BrowseContext, BrowseResult> browseActionHandler,
-                                    UpnpActionHandler<SimpleActionContext, String> getSystemIdActionHandler) {
+                                    UpnpActionHandler<SimpleActionContext, Integer> getSystemIdActionHandler) {
         this.templateService = templateService;
         this.browseActionHandler = browseActionHandler;
         this.getSystemIdActionHandler = getSystemIdActionHandler;

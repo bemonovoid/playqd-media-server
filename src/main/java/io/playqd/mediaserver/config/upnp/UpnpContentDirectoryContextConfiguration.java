@@ -38,18 +38,18 @@ public class UpnpContentDirectoryContextConfiguration {
   }
 
   @Bean
-  UpnpActionHandler<SimpleActionContext, String> getSystemIdActionHandler(StateVariableContextHolder contextHolder) {
+  UpnpActionHandler<SimpleActionContext, Integer> getSystemIdActionHandler(StateVariableContextHolder contextHolder) {
     return new GetSystemIdActionHandler(contextHolder);
-  }
-
-  @Bean
-  BrowseActionDelegate browseActionDelegate(ApplicationContext context) {
-    return new BrowseActionDelegateImpl(context::getBean);
   }
 
   @Bean
   UpnpActionHandler<BrowseContext, BrowseResult> browseActionHandler(BrowseActionDelegate browseActionDelegate) {
     return new BrowseActionHandler(browseActionDelegate);
+  }
+
+  @Bean
+  BrowseActionDelegate browseActionDelegate(ApplicationContext context) {
+    return new BrowseActionDelegateImpl(context::getBean);
   }
 
 }
