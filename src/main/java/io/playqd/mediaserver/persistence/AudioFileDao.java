@@ -16,6 +16,10 @@ import java.util.stream.Stream;
 
 public interface AudioFileDao {
 
+    Page<Artist> getArtists(Pageable pageable);
+
+    Page<AudioFile> getAudioFiles(Pageable pageable);
+
     long countGenres();
 
     long countArtists();
@@ -34,8 +38,6 @@ public interface AudioFileDao {
 
     List<Genre> getAllGenres();
 
-    List<Artist> getAllArtists();
-
     Page<AudioFile> getRecentlyAdded(Pageable pageable);
 
     Page<AudioFile> getPlayed(Pageable pageable);
@@ -45,8 +47,6 @@ public interface AudioFileDao {
     List<Album> getGenreAlbums(String genreId);
 
     List<Album> getArtistAlbums(String artistId);
-
-    List<? extends AudioFile> getAllAudioFiles();
 
     List<AudioFile> getAudioFilesByAlbumId(String albumId);
 
@@ -60,9 +60,9 @@ public interface AudioFileDao {
 
     void setNewLastRecentlyAddedDate(LocalDateTime lastRecentlyAddedDateTime);
 
-    int insertAll(List<Map<String, ?>> audioFilesData);
+    int insertAll(List<Map<String, Object>> audioFilesData);
 
-    int updateAll(Map<Long, Map<String, ?>> audioFilesData);
+    int updateAll(Map<Long, Map<String, Object>> audioFilesData);
 
     long deleteAllByIds(List<Long> ids);
 

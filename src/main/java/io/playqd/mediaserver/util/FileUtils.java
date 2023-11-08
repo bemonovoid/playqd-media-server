@@ -6,6 +6,7 @@ import org.apache.tika.Tika;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -54,7 +55,7 @@ public abstract class FileUtils {
         if (file.isFile()) {
             return byteCountToDisplaySize(file.length());
         } else {
-            return getDirDisplaySIze(file);
+            return getDirDisplaySize(file);
         }
     }
 
@@ -75,9 +76,12 @@ public abstract class FileUtils {
         return TIKA_INSTANCE.detect(fileLocation);
     }
 
-    public static String getDirDisplaySIze(File file) {
-        var dirSize = org.apache.commons.io.FileUtils.sizeOfDirectoryAsBigInteger(file);
-        return org.apache.commons.io.FileUtils.byteCountToDisplaySize(dirSize);
+    public static BigInteger getDirSize(File file) {
+        return org.apache.commons.io.FileUtils.sizeOfDirectoryAsBigInteger(file);
+    }
+
+    public static String getDirDisplaySize(File file) {
+        return org.apache.commons.io.FileUtils.byteCountToDisplaySize(getDirSize(file));
     }
 
     public static String byteCountToDisplaySize(long size) {

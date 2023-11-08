@@ -5,6 +5,9 @@ import io.playqd.mediaserver.config.lifecycle.MediaSourceInitializer;
 import io.playqd.mediaserver.config.properties.PlayqdProperties;
 import io.playqd.mediaserver.persistence.AudioFileDao;
 import io.playqd.mediaserver.persistence.MediaSourceDao;
+import io.playqd.mediaserver.persistence.MediaSourceInfoDao;
+import io.playqd.mediaserver.persistence.jpa.dao.JpaMediaSourceInfoDao;
+import io.playqd.mediaserver.persistence.jpa.repository.MediaSourceInfoRepository;
 import io.playqd.mediaserver.persistence.simple.MediaSourceDaoImpl;
 import io.playqd.mediaserver.service.mediasource.MediaSourceFileSystemWatcherService;
 import io.playqd.mediaserver.service.mediasource.MediaSourceScanner;
@@ -21,6 +24,11 @@ import org.springframework.core.annotation.Order;
 
 @Configuration
 public class MediaSourceContextConfiguration {
+
+  @Bean
+  MediaSourceInfoDao mediaSourceInfoDao(MediaSourceInfoRepository mediaSourceInfoRepository) {
+    return new JpaMediaSourceInfoDao(mediaSourceInfoRepository);
+  }
 
   @Bean
   MediaSourceDao mediaSourceDao() {

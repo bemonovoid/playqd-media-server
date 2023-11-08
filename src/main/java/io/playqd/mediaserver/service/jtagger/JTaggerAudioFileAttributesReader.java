@@ -36,7 +36,7 @@ public class JTaggerAudioFileAttributesReader extends CommonFileAttributesReader
      * @return
      * @throws AudioMetadataReadException
      */
-    public Map<String, ?> read(Path path) {
+    public Map<String, Object> read(Path path) {
         try {
             var file = path.toFile();
             var jTaggerAudioFile = AudioFileIO.read(file);

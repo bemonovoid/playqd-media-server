@@ -8,9 +8,9 @@ import java.util.function.Function;
 
 public enum StateVariableName {
 
-    LOCAL_DEVICE_ID("LocalDeviceID", Objects::toString, value -> value),
+    UPNP_LOCAL_DEVICE_ID("LocalDeviceID", Objects::toString, value -> value),
 
-    SYSTEM_UPDATE_ID("SystemUpdateID", Objects::toString, Integer::valueOf);
+    UPNP_SYSTEM_UPDATE_ID("SystemUpdateID", Objects::toString, Integer::valueOf);
 
     @Getter
     private final String variableName;

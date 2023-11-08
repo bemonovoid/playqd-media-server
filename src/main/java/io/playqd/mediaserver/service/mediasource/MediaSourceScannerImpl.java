@@ -74,8 +74,8 @@ public class MediaSourceScannerImpl implements MediaSourceScanner {
                             .filter(a -> a.getPath().startsWith(path))
                             .collect(Collectors.toMap(AudioFileAttributes::getPath, value -> value)));
 
-            var newAudioFiles = Collections.synchronizedList(new LinkedList<Map<String, ?>>());
-            var modifiedAudioFiles = Collections.synchronizedMap(new LinkedHashMap<Long, Map<String, ?>>());
+            var newAudioFiles = Collections.synchronizedList(new LinkedList<Map<String, Object>>());
+            var modifiedAudioFiles = Collections.synchronizedMap(new LinkedHashMap<Long, Map<String, Object>>());
 
             var totalFilesScanned = new AtomicLong(0);
 
@@ -126,14 +126,14 @@ public class MediaSourceScannerImpl implements MediaSourceScanner {
         log.info("Successfully deleted {} missing items", rowsDeleted);
     }
 
-    private void addNewMetadata(List<Map<String, ?>> newItemsInsertParams) {
+    private void addNewMetadata(List<Map<String, Object>> newItemsInsertParams) {
         if (!newItemsInsertParams.isEmpty()) {
             audioFileDao.insertAll(newItemsInsertParams);
             audioFileDao.setNewLastRecentlyAddedDate(LocalDateTime.now());
         }
     }
 
-    private void updateModifiedMetadata(Map<Long, Map<String, ?>> modifiedItemsInsertParams) {
+    private void updateModifiedMetadata(Map<Long, Map<String, Object>> modifiedItemsInsertParams) {
         if (!modifiedItemsInsertParams.isEmpty()) {
             audioFileDao.updateAll(modifiedItemsInsertParams);
         }

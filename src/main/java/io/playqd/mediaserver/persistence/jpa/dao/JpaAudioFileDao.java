@@ -19,7 +19,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -90,12 +89,9 @@ public class JpaAudioFileDao implements AudioFileDao {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Artist> getAllArtists() {
-        return audioFileRepository.streamDistinctArtists()
-                .map(prj -> new Artist(prj.getId(), prj.getName(), prj.getAlbums(), prj.getTracks()))
-                .distinct() //TODO ??? remove?
-                .sorted()
-                .toList();
+    public Page<Artist> getArtists(Pageable pageable) {
+        return audioFileRepository.findArtists(pageable)
+                .map(prj -> new Artist(prj.getId(), prj.getName(), prj.getAlbums(), prj.getTracks()));
     }
 
     @Override
@@ -125,8 +121,8 @@ public class JpaAudioFileDao implements AudioFileDao {
     }
 
     @Override
-    public List<? extends AudioFile> getAllAudioFiles() {
-        return audioFileRepository.findAll(Pageable.unpaged()).getContent();
+    public Page<AudioFile> getAudioFiles(Pageable pageable) {
+        return audioFileRepository.findAll(Pageable.unpaged()).map(entity -> entity);
     }
 
     @Override
@@ -170,7 +166,7 @@ public class JpaAudioFileDao implements AudioFileDao {
     }
 
     @Override
-    public int insertAll(List<Map<String, ?>> audioFilesData) {
+    public int insertAll(List<Map<String, Object>> audioFilesData) {
         var sqlParameterSources = audioFilesData.stream()
                 .map(MapSqlParameterSource::new)
                 .toArray(SqlParameterSource[]::new);
@@ -199,7 +195,7 @@ public class JpaAudioFileDao implements AudioFileDao {
     }
 
     @Override
-    public int updateAll(Map<Long, Map<String, ?>> audioFilesData) {
+    public int updateAll(Map<Long, Map<String, Object>> audioFilesData) {
         if (CollectionUtils.isEmpty(audioFilesData)) {
             return 0;
         }
@@ -209,7 +205,7 @@ public class JpaAudioFileDao implements AudioFileDao {
 
         Map<String, Object> updates = new LinkedHashMap<>(AudioFileJpaEntity.METADATA_UPDATABLE_COLUMNS.size());
 
-        for (Map.Entry<Long, Map<String, ?>> updatedMetadata : audioFilesData.entrySet()) {
+        for (Map.Entry<Long, Map<String, Object>> updatedMetadata : audioFilesData.entrySet()) {
             updatedMetadata.getValue().entrySet().stream()
                     .filter(e -> AudioFileJpaEntity.METADATA_UPDATABLE_COLUMNS.contains(e.getKey()))
                     .forEach(entry -> updates.put(entry.getKey(), entry.getValue()));

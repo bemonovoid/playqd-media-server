@@ -5,5 +5,5 @@ import java.util.Map;
 
 public interface FileAttributesReader {
 
-    Map<String, ?> read(Path path);
+    Map<String, Object> read(Path path);
 }

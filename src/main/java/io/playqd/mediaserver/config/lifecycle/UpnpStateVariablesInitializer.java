@@ -44,6 +44,6 @@ public class UpnpStateVariablesInitializer implements ApplicationRunner {
     }
 
     private void initSystemUpdateId() {
-        stateVariableContextHolder.getOrUpdate(StateVariableName.SYSTEM_UPDATE_ID, () -> 1);
+        stateVariableContextHolder.getOrUpdate(StateVariableName.UPNP_SYSTEM_UPDATE_ID, () -> 1);
     }
 }

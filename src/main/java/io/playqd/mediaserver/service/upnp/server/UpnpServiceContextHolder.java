@@ -40,6 +40,6 @@ public class UpnpServiceContextHolder {
 
     private static String getDeviceId(StateVariableContextHolder stateVariableContextHolder) {
         return stateVariableContextHolder.getOrUpdate(
-                StateVariableName.LOCAL_DEVICE_ID, () -> UUID.randomUUID().toString());
+                StateVariableName.UPNP_LOCAL_DEVICE_ID, () -> UUID.randomUUID().toString());
     }
 }

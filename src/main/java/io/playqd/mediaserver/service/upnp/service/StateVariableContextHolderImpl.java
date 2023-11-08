@@ -65,9 +65,9 @@ public class StateVariableContextHolderImpl implements StateVariableContextHolde
     }
 
     private void updateSystemUpdateId() {
-        Integer oldSystemUpdateId = getOrThrow(StateVariableName.SYSTEM_UPDATE_ID);
+        Integer oldSystemUpdateId = getOrThrow(StateVariableName.UPNP_SYSTEM_UPDATE_ID);
         var newSystemUpdateId = oldSystemUpdateId + 1;
-        set(StateVariableName.SYSTEM_UPDATE_ID, newSystemUpdateId);
+        set(StateVariableName.UPNP_SYSTEM_UPDATE_ID, newSystemUpdateId);
         log.info("'SystemUpdateID' was updated from '{}' to '{}'", oldSystemUpdateId, newSystemUpdateId);
     }
 

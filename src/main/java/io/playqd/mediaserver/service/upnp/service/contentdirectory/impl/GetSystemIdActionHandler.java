@@ -15,7 +15,7 @@ public class GetSystemIdActionHandler implements UpnpActionHandler<SimpleActionC
 
   @Override
   public Integer handle(SimpleActionContext context) {
-    return stateVariableContextHolder.getOrThrow(StateVariableName.SYSTEM_UPDATE_ID);
+    return stateVariableContextHolder.getOrThrow(StateVariableName.UPNP_SYSTEM_UPDATE_ID);
   }
 
 }

@@ -85,6 +85,11 @@ public class AudioFileJpaEntity extends PersistableAuditableEntity implements Au
             COL_ARTWORK_EMBEDDED, COL_MB_ARTIST_ID, COL_MB_RELEASE_GROUP_ID, COL_MB_RELEASE_TYPE,
             COL_COMMENT, COL_LYRICS, COL_GENRE);
 
+    @Override
+    public Long id() {
+        return getId();
+    }
+
     @Column(name = COL_ARTIST_ID, nullable = false)
     private String artistId;
 
@@ -201,11 +206,6 @@ public class AudioFileJpaEntity extends PersistableAuditableEntity implements Au
 
     @Transient
     private String audioFileStreamUri;
-
-    @Override
-    public Long id() {
-        return getId();
-    }
 
     @Override
     public final String getAudioStreamUri() {

@@ -10,6 +10,7 @@ import io.playqd.mediaserver.service.upnp.service.contentdirectory.DcTagValues;
 import io.playqd.mediaserver.service.upnp.service.contentdirectory.ObjectIdPattern;
 import io.playqd.mediaserver.service.upnp.service.contentdirectory.UpnpClass;
 import io.playqd.mediaserver.service.upnp.service.contentdirectory.UpnpTagValues;
+import org.springframework.data.domain.Pageable;
 
 public final class ArtistsFinder implements BrowsableObjectFinder {
 
@@ -31,14 +32,14 @@ public final class ArtistsFinder implements BrowsableObjectFinder {
         }
 
         if (startingIndex > 0) {
-            var artists = audioFileDao.getAllArtists().stream()
+            var artists = audioFileDao.getArtists(Pageable.unpaged()).stream()
                     .map(artist -> buildBrowsableObject(context, artist))
                     .toList();
             var offset = artists.stream().skip(startingIndex).toList();
             var result = offset.stream().limit(requestedCount).toList();
             return new BrowseResult(offset.size(), result.size(), result);
         } else {
-            var artists = audioFileDao.getAllArtists().stream()
+            var artists = audioFileDao.getArtists(Pageable.unpaged()).stream()
                     .map(artist -> buildBrowsableObject(context, artist))
                     .limit(requestedCount)
                     .toList();

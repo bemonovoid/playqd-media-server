@@ -48,7 +48,7 @@ public interface AudioFileRepository extends IdentityJpaRepository<AudioFileJpaE
 
     @Query("select a.artistId as id, a.artistName as name, count(distinct a.albumName) as albums, count(a.id) as tracks " +
             "from AudioFileJpaEntity a group by a.artistId, a.artistName")
-    Stream<ArtistProjection> streamDistinctArtists();
+    Page<ArtistProjection> findArtists(Pageable pageable);
 
     @Query("select a.genreId as id, a.genre as name, " +
             "count(distinct a.artistId) as artists, " +

@@ -16,7 +16,7 @@ import java.util.Map;
 public abstract class CommonFileAttributesReader implements FileAttributesReader {
 
     @Override
-    public Map<String, ?> read(Path path) {
+    public Map<String, Object> read(Path path) {
         try {
             var file = path.toFile();
             var fileAttributes = Files.readAttributes(path, BasicFileAttributes.class);
